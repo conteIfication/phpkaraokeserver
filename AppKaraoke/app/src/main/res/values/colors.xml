@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary_theme1">#e91e63</color>
+    <color name="colorPrimaryDark_theme1">#c2185b</color>
+    <color name="statusBarColor_theme1">#878787</color>
+
+    <color name="colorPrimary_theme2">#03a9f4</color>
+    <color name="colorPrimaryDark_theme2">#0288d1</color>
+
+    <color name="colorAccent">#fff</color>
+    <color name="textColor">#212121</color>
+    <color name="textColorSecondary">#757575</color>
+    <color name="textColorPrimary">#fff</color>
+    <color name="commonColor">#dbdbdb</color>
+</resources>
