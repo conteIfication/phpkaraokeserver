@@ -36,7 +36,7 @@ import java.text.DecimalFormat;
 import static com.bku.cse.karaoke.util.Utils.checkTheme;
 import static com.bku.cse.karaoke.util.Utils.getScreenOrientation;
 
-public class Detail extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity {
     private VideoView videoView;
     private MediaPlayer mp;
     private SeekBar seekBar;
@@ -53,7 +53,7 @@ public class Detail extends AppCompatActivity {
     private boolean controllerShow = false;
     private boolean isPlaying = true;
 
-    private static final String TAG = "Detail";
+    private static final String TAG = "DetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,7 +222,7 @@ public class Detail extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
 

@@ -13,25 +13,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme_theme1">
         <activity
-            android:name=".controller.Logo"
+            android:name=".controller.LogoActivity"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".controller.Home" />
+        <activity android:name=".controller.HomeActivity" />
         <activity
-            android:name=".controller.Detail"
-            android:parentActivityName=".controller.Home">
+            android:name=".controller.DetailActivity"
+            android:parentActivityName=".controller.HomeActivity">
             >
         </activity>
         <activity
-            android:name=".controller.Login"
+            android:name=".controller.LoginActivity"
             android:noHistory="true"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".controller.SignUp"
+            android:name=".controller.SignUpActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"></activity>
     </application>

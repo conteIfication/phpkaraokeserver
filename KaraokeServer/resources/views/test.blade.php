@@ -4,3 +4,10 @@
     //echo $data;
 ?>
 {{ $galaries }}
+
+@section('hihi')
+    <form >
+        {{ csrf_field() }}
+    </form>
+
+@show

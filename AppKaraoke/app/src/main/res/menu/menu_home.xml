@@ -7,7 +7,6 @@
     showAsAction: trạng thái cho phép hiển thị trên actionbar không
     title: tiêu để dạng text
     -->
-
     <item
         android:id="@+id/action_search"
         android:actionViewClass="android.widget.SearchView"
@@ -39,8 +38,15 @@
                 android:icon="@android:drawable/ic_menu_help"
                 app:showAsAction="ifRoom"
                 android:title="help" />
+            <item android:id="@+id/action_login"
+                app:showAsAction="ifRoom"
+                android:title="login"
+                />
+            <item android:id="@+id/action_logout"
+                app:showAsAction="ifRoom"
+                android:title="logout"/>
 
         </menu>
-        </item>
+    </item>
 
 </menu>

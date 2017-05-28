@@ -12,7 +12,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.bku.cse.karaoke.controller.Detail;
+import com.bku.cse.karaoke.controller.DetailActivity;
 import com.bku.cse.karaoke.R;
 import com.bku.cse.karaoke.adapter.GridAdapter;
 import com.bku.cse.karaoke.model.SmallItem;
@@ -49,7 +49,7 @@ public class HotFragment extends Fragment {
                 SmallItem country = (SmallItem) o;
                 Toast.makeText(view.getContext(), "Selected :"
                         + " " + country.getSongName(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(view.getContext(), Detail.class);
+                Intent intent = new Intent(view.getContext(), DetailActivity.class);
                 intent.putExtra("TITLE", country.getSongName());
                 startActivity(intent);
             }

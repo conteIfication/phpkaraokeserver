@@ -1,6 +1,7 @@
 package com.bku.cse.karaoke.controller;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,18 +11,23 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
 import com.bku.cse.karaoke.adapter.PagerAdapter;
+import com.bku.cse.karaoke.helper.SQLiteHandler;
+import com.bku.cse.karaoke.helper.SessionManager;
 
 import static com.bku.cse.karaoke.util.Utils.checkTheme;
 
-public class Home extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity {
     private ViewPager pager;
     private TabLayout tabLayout;
+    private SessionManager session;
+    private SQLiteHandler db;
 
     private int[] tabIcons = {
             R.drawable.ic_tab_storage,
@@ -35,9 +41,11 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         checkTheme(this);
-
+        Test();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        initUI();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -97,6 +105,10 @@ public class Home extends AppCompatActivity {
 
     }
 
+    public void initUI() {
+        session = new SessionManager(getApplicationContext());
+        db = new SQLiteHandler(getApplicationContext());
+    }
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
@@ -115,7 +127,7 @@ public class Home extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
 
@@ -150,6 +162,15 @@ public class Home extends AppCompatActivity {
                 startActivity(getIntent());
                 overridePendingTransition(0, 0);
                 return true;
+            case R.id.action_login:
+                Intent i = new Intent(this, LoginActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.action_logout:
+                session.setLogin(false);
+
+                Toast.makeText(this, "You are loged out! ^^", Toast.LENGTH_LONG).show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -178,5 +199,11 @@ public class Home extends AppCompatActivity {
                 doubleBackToExitPressedOnce = false;
             }
         }, 2000);
+    }
+
+    //Test Function
+
+    public void Test() {
+        Log.d("Test01", "" + System.currentTimeMillis());
     }
 }

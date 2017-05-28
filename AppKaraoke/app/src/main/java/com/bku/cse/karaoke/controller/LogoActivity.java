@@ -13,7 +13,7 @@ import com.bku.cse.karaoke.R;
 
 import static com.bku.cse.karaoke.util.Utils.checkTheme;
 
-public class Logo extends AppCompatActivity {
+public class LogoActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +45,9 @@ public class Logo extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             public void run() {
                 // Actions to do after 2 seconds
-//                Intent loginIntent = new Intent(ctx, Login.class);
+//                Intent loginIntent = new Intent(ctx, LoginActivity.class);
 //                startActivity(loginIntent);
-                Intent loginIntent = new Intent(ctx, Home.class);
+                Intent loginIntent = new Intent(ctx, HomeActivity.class);
                 startActivity(loginIntent);
             }
         }, 500);
