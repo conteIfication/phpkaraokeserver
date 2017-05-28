@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        id="@+id/tab_song_book"
+        icon="@drawable/ic_collections_bookmark"
+        title="Songbook" />
+    <tab
+        id="@+id/tab_feed"
+        icon="@drawable/ic_looks"
+        title="Feed" />
+    <tab
+        id="@+id/tab_me"
+        icon="@drawable/ic_account_circle"
+        title="Me" />
+</tabs>

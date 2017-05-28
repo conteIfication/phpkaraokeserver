@@ -47,5 +47,7 @@ dependencies {
 
     //MaterialSearchView
     compile 'com.miguelcatalan:materialsearchview:1.4.0'
+    //Bottombar
+    compile 'com.roughike:bottom-bar:2.3.1'
 
 }

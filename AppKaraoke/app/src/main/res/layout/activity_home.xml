@@ -7,36 +7,38 @@
     android:addStatesFromChildren="false"
     tools:context="com.bku.cse.karaoke.controller.HomeActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="0dp"
-            android:title="New"
-            android:translationZ="4dp"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:titleTextColor="@android:color/white" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            app:tabSelectedTextColor="@color/textColorPrimary"
-            app:tabTextColor="@color/commonColor"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="0dp">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
+                android:background="?attr/colorPrimary"
+                android:elevation="0dp"
+                android:title="New"
+                android:translationZ="4dp"
+                app:layout_scrollFlags="scroll|enterAlways|snap"
+                app:titleTextColor="@android:color/white" />
+                <!--Search View-->
 
-        </android.support.design.widget.TabLayout>
 
-    </android.support.design.widget.AppBarLayout>
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                app:tabSelectedTextColor="@color/textColorPrimary"
+                app:tabTextColor="@color/commonColor"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="0dp"/>
+        </android.support.design.widget.AppBarLayout>
+
+
 
 
     <android.support.v4.view.ViewPager
@@ -45,5 +47,16 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <com.roughike.bottombar.BottomBar
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@drawable/color_cursor_white"
+        app:bb_tabXmlResource="@xml/bottombar_tabs"
+        app:bb_behavior="shy" />
+
 </android.support.design.widget.CoordinatorLayout>
+
 

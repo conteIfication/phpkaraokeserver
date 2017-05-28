@@ -31,7 +31,7 @@
             android:layout_alignParentTop="true"
             app:tabMaxWidth="0dp"
             app:tabGravity="fill"
-            app:tabMode="fixed"
+            app:tabMode="scrollable"
             android:background="@xml/tab_shape"
             app:tabSelectedTextColor="@color/textColorPrimary"
             app:tabTextColor="@color/commonColor"
