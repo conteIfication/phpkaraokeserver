@@ -5,6 +5,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +18,29 @@ import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
 import com.bku.cse.karaoke.adapter.GridAdapter;
+import com.bku.cse.karaoke.adapter.KaraokeAdapter;
 import com.bku.cse.karaoke.controller.DetailActivity;
+import com.bku.cse.karaoke.model.KSongList;
 import com.bku.cse.karaoke.model.SmallItem;
+import com.bku.cse.karaoke.rest.ApiClient;
+import com.bku.cse.karaoke.rest.ApiInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by quangthanh on 5/9/2017.
  */
 
 public class RecentFragment extends Fragment {
+    RecyclerView recyclerView;
+    KaraokeAdapter mAdapter;
+
+
     public RecentFragment() {
     }
 
@@ -32,52 +48,30 @@ public class RecentFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_recent, container, false);
-        //TODO:
-        List<SmallItem> data = getListData();
-        final GridView gridView = (GridView) view.findViewById(R.id.gridView_recent);
-        gridView.setAdapter(new GridAdapter(view.getContext(), data));
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Do something for lollipop and above versions
-            gridView.setNestedScrollingEnabled(true);
-        }
 
-        // Khi người dùng click vào các GridItem
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        //Set Adapter Karaoke Song
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<KSongList> call = apiService.getAllSong();
+        call.enqueue(new Callback<KSongList>() {
             @Override
-            public void onItemClick(AdapterView<?> a, View v, int position, long id) {
-                Object o = gridView.getItemAtPosition(position);
-                SmallItem country = (SmallItem) o;
-                Toast.makeText(view.getContext(), "Selected :"
-                        + " " + country.getSongName(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(view.getContext(), DetailActivity.class);
-                intent.putExtra("TITLE", country.getSongName());
-                startActivity(intent);
+            public void onResponse(Call<KSongList> call, Response<KSongList> response) {
+                Log.d("------", response.isSuccessful() ? "1" : "0");
+
+                mAdapter = new KaraokeAdapter(getContext(), response.body().getListKSongs());
+
+                recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_fg_recent);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setAdapter(mAdapter);
+            }
+            @Override
+            public void onFailure(Call<KSongList> call, Throwable t) {
+                // TODO: error
             }
         });
 
+
+
         return view;
-    }
-
-    private List<SmallItem> getListData() {
-        List<SmallItem> list = new ArrayList<SmallItem>();
-        SmallItem vietnam = new SmallItem("Vietnam");
-        SmallItem usa = new SmallItem("United States");
-        SmallItem russia = new SmallItem("Russia");
-        SmallItem australia = new SmallItem("Australia");
-        SmallItem japan = new SmallItem("Japan");
-
-        list.add(vietnam);
-        list.add(usa);
-        list.add(russia);
-        list.add(australia);
-        list.add(japan);
-        list.add(vietnam);
-        list.add(usa);
-        list.add(russia);
-        list.add(australia);
-        list.add(japan);
-
-        return list;
     }
 }

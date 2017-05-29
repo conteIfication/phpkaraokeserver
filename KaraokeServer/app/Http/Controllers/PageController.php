@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Model\Artist;
+use App\Model\KaraokeSong;
+use App\Model\KaraokeSongPerform;
 use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -79,5 +82,23 @@ class PageController extends Controller
         }
 
         return json_encode( [ 'tag' => 'register' , 'success' => true, 'message' => "register success"] );
+    }
+
+    public function getAllSong() {
+        $allsongs = KaraokeSong::all();
+
+        foreach ($allsongs as $song) {
+            $singer_names = KaraokeSongPerform::where('kid', $song->kid)
+                ->join('artist', 'artist.artid', 'karaoke_song_perform.artid')
+                ->select('artist.*')
+                ->pluck('artist.name')
+            ;
+            $name = '';
+            foreach ($singer_names as $singer_name)
+                $name .= $singer_name . " ";
+            $song->singer = $name;
+        }
+
+        return json_encode(['listKSongs' => $allsongs]);
     }
 }

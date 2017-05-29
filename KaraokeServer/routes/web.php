@@ -18,9 +18,11 @@ Route::get('/', function () {
 Route::POST('login', 'PageController@login')->name('login');
 
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
-Route::get('logoutSuccess', 'PageController@logoutSuccess')->name('logoutSuccess');
 
 Route::post('register', 'PageController@register')->name('register');
 
+Route::get('get-all-song', 'PageController@getAllSong')->name('get_all_song');
 
 Route::get('/test', 'PageController@show')->name('test');
+
+

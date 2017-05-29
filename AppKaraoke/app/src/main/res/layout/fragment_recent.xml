@@ -3,12 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView
-        android:id="@+id/gridView_recent"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_fg_recent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="2dp"
-        android:gravity="center"
-        android:horizontalSpacing="10dp"
-        android:verticalSpacing="10dp" />
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical" />
+
 </RelativeLayout>
