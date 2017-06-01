@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageButton android:id="@+id/media_play_pause"
+        <ImageButton
+            android:id="@+id/media_play_pause"
             style="@android:style/MediaButton.Play"
             android:contentDescription="Play" />
 

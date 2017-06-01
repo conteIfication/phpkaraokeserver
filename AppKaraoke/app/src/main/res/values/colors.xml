@@ -10,6 +10,11 @@
     <color name="colorAccent">#fff</color>
     <color name="textColor">#212121</color>
     <color name="textColorSecondary">#757575</color>
-    <color name="textColorPrimary">#fff</color>
+    <color name="textColorPrimary">#ffffff</color>
     <color name="commonColor">#dbdbdb</color>
+    <color name="pink">#ff56f1</color>
+    <color name="dark_pink">#ca0cbb</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="white">#ffffff</color>
+    <color name="bg_rb_select_mode">#00ffffff</color>
 </resources>

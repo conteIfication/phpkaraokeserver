@@ -3,7 +3,6 @@ package com.bku.cse.karaoke.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +11,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bku.cse.karaoke.R;
-import com.bku.cse.karaoke.controller.ModeKaraokeActivity;
+import com.bku.cse.karaoke.controller.SelectModeKaraokeActivity;
 import com.bku.cse.karaoke.model.KaraokeSong;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,8 +25,21 @@ import java.util.List;
  */
 
 public class KaraokeAdapter extends RecyclerView.Adapter<KaraokeAdapter.MyViewHolder> {
+    public List<KaraokeSong> getKaraokeSongs() {
+        return karaokeSongs;
+    }
+
+    public void setKaraokeSongs(List<KaraokeSong> karaokeSongs) {
+        this.karaokeSongs = karaokeSongs;
+    }
+
     private List<KaraokeSong> karaokeSongs;
     private Context _context;
+
+    public KaraokeAdapter(Context context) {
+        this._context = context;
+        this.karaokeSongs = new ArrayList<>();
+    }
 
     public KaraokeAdapter(Context context, List<KaraokeSong> karaokeSongs) {
         this.karaokeSongs = karaokeSongs;
@@ -56,7 +69,7 @@ public class KaraokeAdapter extends RecyclerView.Adapter<KaraokeAdapter.MyViewHo
         View.OnClickListener btn_sing_listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent modeKar_intent = new Intent(_context, ModeKaraokeActivity.class);
+                Intent modeKar_intent = new Intent(_context, SelectModeKaraokeActivity.class);
                 modeKar_intent.putExtra("name", karaokeSong.getName());
                 modeKar_intent.putExtra("image", karaokeSong.getImage());
                 modeKar_intent.putExtra("subtitle_path", karaokeSong.getSubtitle_path());

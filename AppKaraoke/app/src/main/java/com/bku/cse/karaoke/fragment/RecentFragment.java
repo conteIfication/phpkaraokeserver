@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
@@ -21,6 +23,7 @@ import com.bku.cse.karaoke.adapter.GridAdapter;
 import com.bku.cse.karaoke.adapter.KaraokeAdapter;
 import com.bku.cse.karaoke.controller.DetailActivity;
 import com.bku.cse.karaoke.model.KSongList;
+import com.bku.cse.karaoke.model.KaraokeSong;
 import com.bku.cse.karaoke.model.SmallItem;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.rest.ApiInterface;
@@ -37,9 +40,9 @@ import retrofit2.Response;
  */
 
 public class RecentFragment extends Fragment {
+    private static final String TAG = RecentFragment.class.getSimpleName();
     RecyclerView recyclerView;
     KaraokeAdapter mAdapter;
-
 
     public RecentFragment() {
     }
@@ -49,29 +52,32 @@ public class RecentFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_recent, container, false);
 
-        //Set Adapter Karaoke Song
+        mAdapter = new KaraokeAdapter(getContext());
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_fg_recent);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
+        recyclerView.setAdapter(mAdapter);
+
+        //Get data from Server Karaoke Song List
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
         Call<KSongList> call = apiService.getAllSong();
         call.enqueue(new Callback<KSongList>() {
             @Override
             public void onResponse(Call<KSongList> call, Response<KSongList> response) {
-                Log.d("------", response.isSuccessful() ? "1" : "0");
-
-                mAdapter = new KaraokeAdapter(getContext(), response.body().getListKSongs());
-
-                recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_fg_recent);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
-                recyclerView.setAdapter(mAdapter);
+                //Log.d("------", response.isSuccessful() ? "1" : "0");
+                if (response.isSuccessful()) {
+                    mAdapter.setKaraokeSongs( response.body().getListKSongs() );
+                    mAdapter.notifyDataSetChanged();
+                }
             }
             @Override
             public void onFailure(Call<KSongList> call, Throwable t) {
                 // TODO: error
+                Log.e("Data return", "NOT format allow");
             }
         });
-
-
-
         return view;
     }
 }
