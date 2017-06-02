@@ -8,7 +8,8 @@
     <ImageView
         android:id="@+id/sra_background"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
 
     <LinearLayout
         android:id="@+id/sra_wrap_player"
@@ -130,7 +131,7 @@
 
         <LinearLayout
             android:id="@+id/sra_wrap_download"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
@@ -139,7 +140,9 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sra_scroll_view">
+            app:layout_constraintTop_toBottomOf="@+id/sra_scroll_view"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:id="@+id/sra_label_download"
@@ -174,7 +177,9 @@
             android:visibility="invisible"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sra_wrap_download" />
+            app:layout_constraintTop_toBottomOf="@+id/sra_wrap_download"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
 
     </android.support.constraint.ConstraintLayout>
 

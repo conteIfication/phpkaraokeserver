@@ -1,12 +1,15 @@
 package com.bku.cse.karaoke.controller;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -37,6 +40,9 @@ import java.util.List;
 import static com.bku.cse.karaoke.util.Utils.checkTheme;
 
 public class HomeActivity extends AppCompatActivity {
+    public final int REQUEST_INTERNET = 123;
+    public final int REQUEST_W_EXTERNAL = 124;
+    public final int REQUEST_RECORD_AUDIO = 125;
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private SessionManager session;
@@ -261,5 +267,4 @@ public class HomeActivity extends AppCompatActivity {
             }
         }, 2000);
     }
-
 }

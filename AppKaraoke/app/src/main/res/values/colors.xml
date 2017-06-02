@@ -7,10 +7,10 @@
     <color name="colorPrimary_theme2">#03a9f4</color>
     <color name="colorPrimaryDark_theme2">#8bbbd5</color>
 
-    <color name="colorAccent">#fff</color>
+    <color name="colorAccent">#ffffff</color>
     <color name="textColor">#212121</color>
     <color name="textColorSecondary">#757575</color>
-    <color name="textColorPrimary">#ffffff</color>
+    <color name="textColorPrimary">#505050</color>
     <color name="commonColor">#dbdbdb</color>
     <color name="pink">#ff56f1</color>
     <color name="dark_pink">#ca0cbb</color>

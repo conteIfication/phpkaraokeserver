@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 29, 2017 at 03:10 AM
+-- Generation Time: Jun 02, 2017 at 04:17 AM
 -- Server version: 10.1.22-MariaDB
 -- PHP Version: 7.1.4
 
@@ -125,7 +125,7 @@ CREATE TABLE `karaoke_song` (
 INSERT INTO `karaoke_song` (`kid`, `name`, `subtitle_path`, `beat_path`, `view_no`, `up_time`, `image`, `uid`) VALUES
 (1, '123 ngôi sao', 'storage/songs/123_Ngoi_Sao.xml', 'storage/songs/123_Ngoi_Sao.mp3', 0, '2017-05-29 03:58:09', 'storage/image1.jpg', 10),
 (2, 'Bụi bay vào mắt', 'storage/songs/Bui_bay_vao_mat.xml', 'storage/songs/Bui_bay_vao_mat.mp3', 0, '2017-05-29 04:00:28', 'storage/image2.jpg', 10),
-(3, 'Tóc hát', 'storage/songs/toc hat.xml', 'storage/songs/toc hat.mp3', 0, '2017-05-29 04:05:24', 'storage/image2.jpg', 10);
+(3, 'Tóc hát', 'storage/songs/toc_hat.xml', 'storage/songs/toc_hat.mp3', 0, '2017-05-29 04:05:24', 'storage/image2.jpg', 10);
 
 -- --------------------------------------------------------
 
