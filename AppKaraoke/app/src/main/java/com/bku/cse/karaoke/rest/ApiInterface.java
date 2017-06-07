@@ -26,4 +26,9 @@ public interface ApiInterface {
     @GET("get-all-song")
     Call<KSongList> getAllSong();
 
+    @GET("get-hot-song")
+    Call<KSongList> getHotSong();
+
+    @GET("get-new-song")
+    Call<KSongList> getNewSong();
 }

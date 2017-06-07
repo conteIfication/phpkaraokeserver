@@ -3,12 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView
-        android:id="@+id/gridView_new"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fm_new_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="2dp"
-        android:gravity="center"
-        android:horizontalSpacing="10dp"
-        android:verticalSpacing="10dp" />
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical" />
 </RelativeLayout>

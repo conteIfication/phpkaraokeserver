@@ -4,9 +4,9 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KaraokeSongBelongIn extends Model
+class KSBelong extends Model
 {
-    protected $table = 'karaoke_song_belong_in';
+    protected $table = 'ks_belong';
     //
     protected $fillable = ['kid', 'genid'];
     public $timestamps = false;

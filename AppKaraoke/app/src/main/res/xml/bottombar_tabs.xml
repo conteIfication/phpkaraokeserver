@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tabs>
+<tabs xmlns:app="http://schemas.android.com/apk/res-auto">
     <tab
         id="@+id/tab_song_book"
         icon="@drawable/ic_collections_bookmark"

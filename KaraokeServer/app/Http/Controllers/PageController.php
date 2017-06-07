@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Model\Artist;
 use App\Model\KaraokeSong;
 use App\Model\KaraokeSongPerform;
+use App\Model\KSPerform;
 use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -41,12 +42,14 @@ class PageController extends Controller
         $password = $request->get('password');
 
         $user = User::where('email', $email)->first();
+        $user->gender = ($user->gender == 1) ? true : false;
 
         //NOT FOUND USER
         if (count($user) < 1) {
             return json_encode([ 'tag' => 'login',
                 'success' => false,
-                'message' => 'not found user'
+                'message' => 'not found user',
+                'user' => null
             ]);
         }
 
@@ -54,14 +57,16 @@ class PageController extends Controller
         if ( !Hash::check($password, $user->password) ) {
             $data = [ 'tag' => 'login',
                 'success' => false,
-                'message' => 'error match password'
+                'message' => 'error match password',
+                'user' => null
             ];
             return json_encode($data);
         }
 
         $data = [ 'tag' => 'login',
             'success' => true,
-            'message' => 'login success'
+            'message' => 'login success',
+            'user' => $user
         ];
         return json_encode($data);
     }
@@ -88,17 +93,64 @@ class PageController extends Controller
         $allsongs = KaraokeSong::all();
 
         foreach ($allsongs as $song) {
-            $singer_names = KaraokeSongPerform::where('kid', $song->kid)
-                ->join('artist', 'artist.artid', 'karaoke_song_perform.artid')
+            $arr_singer_name = KSPerform::where('kid', $song->kid)
+                ->join('artist', 'artist.artid', 'ks_perform.artid')
                 ->select('artist.*')
                 ->pluck('artist.name')
             ;
-            $name = '';
-            foreach ($singer_names as $singer_name)
-                $name .= $singer_name . " ";
-            $song->singer = $name;
+            $name_of_singer = '';
+            foreach ($arr_singer_name as $singer_name)
+                if ($name_of_singer != '')
+                    $name_of_singer .= (' - ' .  $singer_name);
+                else
+                    $name_of_singer .= $singer_name;
+
+            $song->singer = $name_of_singer;
         }
 
         return json_encode(['listKSongs' => $allsongs]);
+    }
+
+    public function getHotSong() {
+        $hostsongs = KaraokeSong::orderBy("view_no", "dsc")->get();
+
+        foreach ($hostsongs as $song) {
+            $arr_singer_name = KSPerform::where('kid', $song->kid)
+                ->join('artist', 'artist.artid', 'ks_perform.artid')
+                ->select('artist.*')
+                ->pluck('artist.name')
+            ;
+            $name_of_singer = '';
+            foreach ($arr_singer_name as $singer_name)
+                if ($name_of_singer != '')
+                    $name_of_singer .= (' - ' .  $singer_name);
+                else
+                    $name_of_singer .= $singer_name;
+
+            $song->singer = $name_of_singer;
+        }
+
+        return json_encode(['listKSongs' => $hostsongs]);
+    }
+    public function getNewSong() {
+        $hostsongs = KaraokeSong::orderBy("up_time", "dsc")->get();
+
+        foreach ($hostsongs as $song) {
+            $arr_singer_name = KSPerform::where('kid', $song->kid)
+                ->join('artist', 'artist.artid', 'ks_perform.artid')
+                ->select('artist.*')
+                ->pluck('artist.name')
+            ;
+            $name_of_singer = '';
+            foreach ($arr_singer_name as $singer_name)
+                if ($name_of_singer != '')
+                    $name_of_singer .= (' - ' .  $singer_name);
+                else
+                    $name_of_singer .= $singer_name;
+
+            $song->singer = $name_of_singer;
+        }
+
+        return json_encode(['listKSongs' => $hostsongs]);
     }
 }

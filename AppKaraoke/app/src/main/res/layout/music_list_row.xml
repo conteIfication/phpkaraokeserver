@@ -36,7 +36,7 @@
                 android:layout_marginTop="6dp"
                 android:layout_weight="1"
                 android:text="here with me"
-                android:textColor="#FF1FB0F2"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 

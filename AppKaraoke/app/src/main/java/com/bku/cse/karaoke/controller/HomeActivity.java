@@ -1,15 +1,11 @@
 package com.bku.cse.karaoke.controller;
 
-import android.Manifest;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -17,8 +13,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -28,10 +24,11 @@ import com.bku.cse.karaoke.fragment.AllFragment;
 import com.bku.cse.karaoke.fragment.HotFragment;
 import com.bku.cse.karaoke.fragment.NewFragment;
 import com.bku.cse.karaoke.fragment.RecentFragment;
-import com.bku.cse.karaoke.helper.SQLiteHandler;
+import com.bku.cse.karaoke.helper.DatabaseHandler;
 import com.bku.cse.karaoke.helper.SessionManager;
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.BottomBarTab;
+import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 
 import java.util.ArrayList;
@@ -40,25 +37,20 @@ import java.util.List;
 import static com.bku.cse.karaoke.util.Utils.checkTheme;
 
 public class HomeActivity extends AppCompatActivity {
+    private static final int REQUEST_CODE_SETTING = 10;
+    private static final int REQUEST_CODE_LOGIN = 11;
+    private final String TAG = HomeActivity.class.getSimpleName();
     public final int REQUEST_INTERNET = 123;
     public final int REQUEST_W_EXTERNAL = 124;
     public final int REQUEST_RECORD_AUDIO = 125;
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private SessionManager session;
-    private SQLiteHandler db;
+    private DatabaseHandler db;
     private BottomBar bottomBar;
+    private BottomBarTab bottomBarTab_me;
 
     Toolbar toolbar;
-
-    private int[] tabIcons = {
-            R.drawable.ic_tab_storage,
-            R.drawable.ic_tab_chart,
-            R.drawable.ic_tab_near,
-            R.drawable.ic_tab_storage_dark,
-            R.drawable.ic_tab_chart_dark,
-            R.drawable.ic_tab_near_dark
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,18 +58,39 @@ public class HomeActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        initUI();
+
+        //Init UI
+        session = new SessionManager(getApplicationContext());
+        db = new DatabaseHandler(getApplicationContext());
+        bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        bottomBarTab_me = (BottomBarTab) bottomBar.findViewById(R.id.tab_me);
+
+        //check Login Status
+        if ( !session.isLoggedIn() ) {
+            bottomBarTab_me.setTitle("Guest");
+        }else {
+            bottomBarTab_me.setTitle("Me");
+        }
+        //Toolbar scroll enable
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // Do something for lollipop and above versions
+            AppBarLayout.LayoutParams params =
+                    (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+        }
+        setSupportActionBar(toolbar);
 
         // Load Pager
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         setUpViewPager(viewPager);
+        viewPager.setCurrentItem(1);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
         //Add TabLayout Listener
-        TabLayout.ViewPagerOnTabSelectedListener listenerTabLayout =
+        final TabLayout.ViewPagerOnTabSelectedListener listenerTabLayout =
                 new TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
                     @Override
                     public void onTabSelected(TabLayout.Tab tab) {
@@ -104,24 +117,53 @@ public class HomeActivity extends AppCompatActivity {
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
-                //SONGBOOK tab
-                if (tabId == R.id.tab_song_book) {
-                    Toast.makeText(getApplicationContext(), "SongBOOk", Toast.LENGTH_SHORT).show();
-                }
-                //FEED tab
-                else if (tabId == R.id.tab_feed) {
-                    Intent feed_intent = new Intent(getApplicationContext(), FeedActivity.class);
-                    startActivity(feed_intent);
-                    finish();
-                }
-                //ME tab
-                else if (tabId == R.id.tab_me) {
-                    Intent me_intent = new Intent(getApplicationContext(), MeActivity.class);
-                    startActivity(me_intent);
-                    finish();
+                switch (tabId) {
+                    case R.id.tab_song_book:  //SONGBOOK tab
+                        Toast.makeText(getApplicationContext(), "SongBook", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.tab_feed:    //FEED tab
+                        finish();
+                        Intent feedIntent = new Intent(getApplicationContext(), FeedActivity.class);
+                        startActivity(feedIntent);
+                        break;
+                    case R.id.tab_me:        //ME tab
+                        if ( session.isLoggedIn() ) {
+                            finish();
+                            Intent meIntent = new Intent(getApplicationContext(), MeActivity.class);
+                            startActivity(meIntent);
+                        }
+                        else {
+                            //not Login
+                            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                            startActivityForResult(loginIntent, REQUEST_CODE_LOGIN);
+                        }
+                        break;
+                    default: break;
                 }
             }
         });
+        //bottom bar click again
+        bottomBar.setOnTabReselectListener(new OnTabReselectListener() {
+            @Override
+            public void onTabReSelected(@IdRes int tabId) {
+                switch (tabId) {
+                    case R.id.tab_me:
+                        if ( session.isLoggedIn() ) {
+                            finish();
+                            Intent meIntent = new Intent(getApplicationContext(), MeActivity.class);
+                            startActivity(meIntent);
+                        }
+                        else {
+                            //not Login
+                            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                            startActivityForResult(loginIntent, REQUEST_CODE_LOGIN);
+                        }
+                        break;
+                    default:break;
+                }
+            }
+        });
+
     }
     public void setUpViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());;
@@ -132,20 +174,6 @@ public class HomeActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
-    public void initUI() {
-        session = new SessionManager(getApplicationContext());
-        db = new SQLiteHandler(getApplicationContext());
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
-            // Do something for lollipop and above versions
-            AppBarLayout.LayoutParams params =
-                    (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
-            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
-        }
-        setSupportActionBar(toolbar);
-        bottomBar = (BottomBar) findViewById(R.id.bottomBar);
-    }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
@@ -187,68 +215,50 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        SharedPreferences sharedPreferences = this.getSharedPreferences("themeSetting", Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        // Handle presses on the action bar items
         switch (item.getItemId()) {
+            //Search
             case R.id.action_search:
                 Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
                 Intent iSearch = new Intent(this, SearchActivity.class);
                 startActivity(iSearch);
                 return true;
+
+            //Open Setting Activity
             case R.id.action_settings:
                 Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+                Intent iSetting = new Intent(getApplicationContext(), SettingActivity.class);
+                startActivityForResult(iSetting, REQUEST_CODE_SETTING);
                 return true;
-            case R.id.action_help:
-                Toast.makeText(this, "Help", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_theme1:
-                edit.putString("Theme", "Theme 1");
-                edit.apply();
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(getIntent());
-                overridePendingTransition(0, 0);
-                return true;
-            case R.id.action_theme2:
-                edit.putString("Theme", "Theme 2");
-                edit.commit();
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(getIntent());
-                overridePendingTransition(0, 0);
-                return true;
-            case R.id.action_login:
-                Intent i = new Intent(this, LoginActivity.class);
-                startActivity(i);
-                return true;
-            case R.id.action_logout:
-                session.setLogin(false);
 
-                Toast.makeText(this, "You are loged out! ^^", Toast.LENGTH_LONG).show();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-    protected Boolean isActivityRunning(Class activityClass)
-    {
-        ActivityManager activityManager = (ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
 
-        for (ActivityManager.RunningTaskInfo task : tasks) {
-            if (activityClass.getCanonicalName().equalsIgnoreCase(task.baseActivity.getClassName()))
-                return true;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_SETTING:
+                //if theme of application is changed
+                Boolean isChangedTheme = data.getBooleanExtra("isChangedTheme", false);
+                if (isChangedTheme) {
+                    finish();
+                    startActivity(getIntent());
+                }
+                break;
+            case REQUEST_CODE_LOGIN:
+                if ( session.isLoggedIn() ) {
+                    finish();
+                    Intent meIntent = new Intent(getApplicationContext(), MeActivity.class);
+                    startActivity(meIntent);
+                }
+                bottomBar.selectTabAtPosition(0);
+                break;
+            default:break;
         }
-
-        return false;
     }
 
-    /**
-     * Back button handler
-     */
     private boolean doubleBackToExitPressedOnce = false;
-
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {

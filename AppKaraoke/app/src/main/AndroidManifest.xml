@@ -24,11 +24,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".controller.HomeActivity" />
+        <activity android:name=".controller.MeActivity" />
+        <activity android:name=".controller.FeedActivity" />
+
         <activity
             android:name=".controller.DetailActivity"
-            android:parentActivityName=".controller.HomeActivity">
-            >
-        </activity>
+            android:parentActivityName=".controller.HomeActivity" />
         <activity
             android:name=".controller.LoginActivity"
             android:noHistory="true"
@@ -40,11 +41,6 @@
         <activity android:name=".controller.SearchActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"/>
-        <activity android:name=".controller.MeActivity"
-            android:noHistory="true"/>
-        <activity android:name=".controller.FeedActivity"
-            android:noHistory="true"/>
-
         <activity android:name=".controller.SelectModeKaraokeActivity"
             android:parentActivityName=".controller.HomeActivity"
             android:noHistory="true"/>
@@ -52,6 +48,9 @@
             android:parentActivityName=".controller.SelectModeKaraokeActivity"
             android:noHistory="true"/>
         <activity android:name=".controller.SingRecordVideoActivity"
+            android:noHistory="true"/>
+        <activity android:name=".controller.SettingActivity"
+            android:parentActivityName=".controller.HomeActivity"
             android:noHistory="true"/>
     </application>
 

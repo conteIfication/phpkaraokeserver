@@ -3,22 +3,60 @@ package com.bku.cse.karaoke.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.bku.cse.karaoke.R;
+import com.bku.cse.karaoke.adapter.KaraokeAdapter;
+import com.bku.cse.karaoke.model.KSongList;
+import com.bku.cse.karaoke.rest.ApiClient;
+import com.bku.cse.karaoke.rest.ApiInterface;
 
-/**
- * Created by thonghuynh on 5/28/2017.
- */
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AllFragment extends Fragment {
+    private static final String TAG = AllFragment.class.getSimpleName();
+    RecyclerView recyclerView;
+    KaraokeAdapter mAdapter;
+
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_all, container, false);
+        mAdapter = new KaraokeAdapter(getContext());
+        recyclerView = (RecyclerView) view.findViewById(R.id.fm_all_recycler_view);
 
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
+        recyclerView.setAdapter(mAdapter);
+
+        //Get data from Server Karaoke Song List
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<KSongList> call = apiService.getAllSong();
+        call.enqueue(new Callback<KSongList>() {
+            @Override
+            public void onResponse(Call<KSongList> call, Response<KSongList> response) {
+                if (response.isSuccessful()) {
+                    mAdapter.setKaraokeSongs( response.body().getListKSongs() );
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+            @Override
+            public void onFailure(Call<KSongList> call, Throwable t) {
+                // TODO: error
+                Log.e("Data return", "NOT format allow");
+            }
+        });
         return view;
     }
 }

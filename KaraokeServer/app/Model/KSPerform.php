@@ -4,10 +4,10 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KaraokeSongPerform extends Model
+class KSPerform extends Model
 {
     //
-    protected $table = 'karaoke_song_perform';
+    protected $table = 'ks_perform';
     protected $fillable = ['kid', 'artid'];
     public $timestamps = false;
 }

@@ -3,7 +3,6 @@ package com.bku.cse.karaoke.controller;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -19,38 +18,43 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
-import com.bku.cse.karaoke.helper.SQLiteHandler;
+import com.bku.cse.karaoke.helper.DatabaseHandler;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.model.MSGAuth;
+import com.bku.cse.karaoke.model.User;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.rest.ApiInterface;
+import com.bku.cse.karaoke.util.Utils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.bku.cse.karaoke.util.Utils.checkTheme;
 
 public class LoginActivity extends AppCompatActivity {
     Button btn_loginButton;
     TextView tv_signupLink;
     EditText et_email, et_password;
     private SessionManager session;
-    private SQLiteHandler db;
+    private DatabaseHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        checkTheme(this);
+        Utils.checkTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        initUI();
+        //Init UI
+        btn_loginButton = (Button) findViewById(R.id.btn_login);
+        tv_signupLink = (TextView) findViewById(R.id.link_signup);
+        et_email = (EditText) findViewById(R.id.input_email);
+        et_password = (EditText) findViewById(R.id.input_password);
 
-        if (session.isLoggedIn()) {
-            Intent i = new Intent(this, HomeActivity.class);
-            startActivity(i);
-            finish();
-        }
+        //Save data init
+        db = new DatabaseHandler(getApplicationContext());
+        session = new SessionManager(getApplicationContext());
+
+        //set color Register Link
+        setupSpanableRegisterLink();
 
         // get Email From SIGN UP activity
         Intent gIntent = getIntent();
@@ -68,17 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
-    public void initUI() {
-        btn_loginButton = (Button) findViewById(R.id.btn_login);
-        tv_signupLink = (TextView) findViewById(R.id.link_signup);
-        et_email = (EditText) findViewById(R.id.input_email);
-        et_password = (EditText) findViewById(R.id.input_password);
-
-        // SQLite database handler
-        db = new SQLiteHandler(getApplicationContext());
-        // Session manager
-        session = new SessionManager(getApplicationContext());
-
+    public void setupSpanableRegisterLink() {
         //Change signupLink color: RED
         SpannableString str_link_signup =
                 new SpannableString( "No account yet? " /*index 0 - 15*/ + "Create one" /*index 16 - 26*/ );
@@ -87,8 +81,9 @@ public class LoginActivity extends AppCompatActivity {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Intent i = new Intent(getApplicationContext(), SignUpActivity.class);
-                startActivity(i);
+                finish();
+                Intent registerIntent = new Intent(getApplicationContext(), SignUpActivity.class);
+                startActivity(registerIntent);
             }
 
             @Override
@@ -131,14 +126,14 @@ public class LoginActivity extends AppCompatActivity {
         call.enqueue(new Callback<MSGAuth>() {
             @Override
             public void onResponse(Call<MSGAuth> call, Response<MSGAuth> response) {
-                Log.d("sss", response.isSuccessful() ? "1" : "0");
+                Log.d("responseLogin", response.isSuccessful() ? "1" : "0");
                 if (response.body().isSuccess()) {
-                    // user successfully logged in
-                    // Create login session = true
-                    session.setLogin(true);
-
                     Toast.makeText(getApplicationContext(), "Login Successfully!", Toast.LENGTH_LONG).show();
+
+                    session.setLogin(true, response.body().getUser() );
+
                     //Close Login Activity
+                    setResult(RESULT_OK);
                     finish();
                 }
                 else {
@@ -184,27 +179,9 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
-    /**
-     * Back button handler
-     */
-    private boolean doubleBackToExitPressedOnce = false;
-
     @Override
     public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
-            }
-        }, 2000);
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

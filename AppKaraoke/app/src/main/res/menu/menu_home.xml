@@ -1,12 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" >
-
-    <!--
-    Trong mỗi item có
-    id: để truy xuất kết nối code java
-    icon: icon của menu
-    showAsAction: trạng thái cho phép hiển thị trên actionbar không
-    title: tiêu để dạng text
-    -->
     <item
         android:id="@+id/action_search"
         android:actionViewClass="android.widget.SearchView"
@@ -19,33 +11,10 @@
         app:showAsAction="ifRoom"
         android:title="more">
         <menu>
-            <item android:id="@+id/action_theme1"
-                android:icon="@android:drawable/ic_menu_crop"
-                app:showAsAction="ifRoom"
-                android:title="Theme 1" />
-
-            <item android:id="@+id/action_theme2"
-                android:icon="@android:drawable/ic_menu_crop"
-                app:showAsAction="ifRoom"
-                android:title="Theme 2" />
-
             <item android:id="@+id/action_settings"
                 android:icon="@drawable/ic_menu_setting"
                 app:showAsAction="ifRoom"
                 android:title="settings" />
-
-            <item android:id="@+id/action_help"
-                android:icon="@android:drawable/ic_menu_help"
-                app:showAsAction="ifRoom"
-                android:title="help" />
-            <item android:id="@+id/action_login"
-                app:showAsAction="ifRoom"
-                android:title="login"
-                />
-            <item android:id="@+id/action_logout"
-                app:showAsAction="ifRoom"
-                android:title="logout"/>
-
         </menu>
     </item>
 

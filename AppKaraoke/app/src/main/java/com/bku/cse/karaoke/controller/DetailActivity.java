@@ -238,25 +238,6 @@ public class DetailActivity extends AppCompatActivity {
             case R.id.action_settings:
                 Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.action_help:
-                Toast.makeText(this, "Help", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_theme1:
-                edit.putString("Theme", "Theme 1");
-                edit.commit();
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(getIntent());
-                overridePendingTransition(0, 0);
-                return true;
-            case R.id.action_theme2:
-                edit.putString("Theme", "Theme 2");
-                edit.commit();
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(getIntent());
-                overridePendingTransition(0, 0);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

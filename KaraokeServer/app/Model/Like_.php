@@ -8,6 +8,6 @@ class Like_ extends Model
 {
     //
     protected $table = 'like_';
-    protected $fillable = ['uid', 'shared_record_id', 'like_time'];
+    protected $fillable = ['uid', 'srid', 'up_time'];
     public $timestamps = false;
 }

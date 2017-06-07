@@ -13,9 +13,9 @@ import java.util.HashMap;
  * Created by thonghuynh on 5/28/2017.
  */
 
-public class SQLiteHandler extends SQLiteOpenHelper {
+public class DatabaseHandler extends SQLiteOpenHelper {
 
-    private static final String TAG = SQLiteHandler.class.getSimpleName();
+    private static final String TAG = DatabaseHandler.class.getSimpleName();
 
     // All Static variables
     // Database Version
@@ -36,7 +36,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     private static final String KEY_BIRTHDAY = "birthday";
     private static final String KEY_AVATAR = "avatar";
 
-    public SQLiteHandler(Context context) {
+    public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

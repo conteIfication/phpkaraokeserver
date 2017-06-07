@@ -47,8 +47,9 @@ public class LogoActivity extends AppCompatActivity {
                 // Actions to do after 2 seconds
 //                Intent loginIntent = new Intent(ctx, LoginActivity.class);
 //                startActivity(loginIntent);
-                Intent loginIntent = new Intent(ctx, HomeActivity.class);
-                startActivity(loginIntent);
+                Intent homeIntent = new Intent(ctx, HomeActivity.class);
+//                Intent homeIntent = new Intent(ctx, HomeActivity.class);
+                startActivity(homeIntent);
             }
         }, 500);
     }

@@ -1,12 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"  android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView2"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="this is ME activity"
-        android:textAlignment="center" />
-</LinearLayout>
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/background_me" />
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/me_avatar"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/demo"
+                    app:civ_fill_color="#ffffff"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/me_tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="60dp"
+                    android:text="USER NAME"
+                    android:textAllCaps="true"
+                    android:textColor="#ffffff"
+                    android:textSize="24sp"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toRightOf="@+id/me_avatar"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/me_tv_email"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="2dp"
+                    android:text="username@gmail.com"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp"
+                    app:layout_constraintLeft_toRightOf="@+id/me_avatar"
+                    app:layout_constraintTop_toBottomOf="@+id/me_tv_name" />
+
+                <Button
+                    android:id="@+id/me_btn_detail_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/background_for_textview"
+                    android:minHeight="34dp"
+                    android:minWidth="120dp"
+                    android:text="View"
+                    android:textColor="#ffffff"
+                    app:layout_constraintLeft_toRightOf="@+id/me_avatar"
+                    app:layout_constraintTop_toBottomOf="@+id/me_tv_email" />
+
+                <ImageButton
+                    android:id="@+id/me_btn_popup_setting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/transparent"
+                    android:elevation="0dp"
+                    android:onClick="popupSetting"
+                    android:scaleX="1.5"
+                    android:scaleY="1.5"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_3dot_white" />
+
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.design.widget.CoordinatorLayout>
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/me_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:tabSelectedTextColor="@color/textColorPrimary"
+            app:tabTextColor="@color/commonColor" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/me_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <com.roughike.bottombar.BottomBar
+        android:id="@+id/bottombar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@drawable/color_cursor_white"
+        app:bb_behavior="shy"
+        app:bb_tabXmlResource="@xml/bottombar_tabs" />
+</android.support.design.widget.CoordinatorLayout>

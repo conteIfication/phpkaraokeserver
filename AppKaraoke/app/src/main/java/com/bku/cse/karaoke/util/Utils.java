@@ -4,29 +4,32 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 
 import com.bku.cse.karaoke.R;
 
-/**
- * Created by quangthanh on 5/13/2017.
- */
-
 public class Utils {
-    final static String TAG = "UTILS";
+    final static String TAG = Utils.class.getSimpleName();
 
     public static void checkTheme(Activity act) {
-        SharedPreferences sharedPreferences = act.getSharedPreferences("themeSetting", Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
+        SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(act.getBaseContext());
+//        SharedPreferences themePref = act.getSharedPreferences("themeSetting", Context.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = themePref.edit();
 
-        String currTheme = sharedPreferences.getString("Theme", null);
-
-        if (currTheme == null || currTheme.equals("Theme 1")) {
-            act.setTheme(R.style.AppTheme_theme1);
-        } else {
-            act.setTheme(R.style.AppTheme_theme2);
+        String currTheme = defaultPref.getString("themeStyle", "theme1");
+        if (currTheme != null) {
+            switch (currTheme) {
+                case "theme1":
+                    act.setTheme(R.style.AppTheme_theme1);
+                    break;
+                case "theme2":
+                    act.setTheme(R.style.AppTheme_theme2);
+                    break;
+                default:break;
+            }
         }
     }
 
