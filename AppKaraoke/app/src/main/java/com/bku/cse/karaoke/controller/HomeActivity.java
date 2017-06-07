@@ -1,8 +1,6 @@
 package com.bku.cse.karaoke.controller;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IdRes;
@@ -14,7 +12,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,7 +21,7 @@ import com.bku.cse.karaoke.fragment.AllFragment;
 import com.bku.cse.karaoke.fragment.HotFragment;
 import com.bku.cse.karaoke.fragment.NewFragment;
 import com.bku.cse.karaoke.fragment.RecentFragment;
-import com.bku.cse.karaoke.helper.DatabaseHandler;
+import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
@@ -46,7 +43,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private SessionManager session;
-    private DatabaseHandler db;
+    private DatabaseHelper db;
     private BottomBar bottomBar;
     private BottomBarTab bottomBarTab_me;
 
@@ -61,7 +58,7 @@ public class HomeActivity extends AppCompatActivity {
 
         //Init UI
         session = new SessionManager(getApplicationContext());
-        db = new DatabaseHandler(getApplicationContext());
+        db = new DatabaseHelper(getApplicationContext());
         bottomBar = (BottomBar) findViewById(R.id.bottombar);
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         bottomBarTab_me = (BottomBarTab) bottomBar.findViewById(R.id.tab_me);

@@ -18,10 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
-import com.bku.cse.karaoke.helper.DatabaseHandler;
+import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.model.MSGAuth;
-import com.bku.cse.karaoke.model.User;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.rest.ApiInterface;
 import com.bku.cse.karaoke.util.Utils;
@@ -35,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView tv_signupLink;
     EditText et_email, et_password;
     private SessionManager session;
-    private DatabaseHandler db;
+    private DatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         et_password = (EditText) findViewById(R.id.input_password);
 
         //Save data init
-        db = new DatabaseHandler(getApplicationContext());
+        db = new DatabaseHelper(getApplicationContext());
         session = new SessionManager(getApplicationContext());
 
         //set color Register Link

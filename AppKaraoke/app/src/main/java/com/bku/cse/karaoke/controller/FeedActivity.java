@@ -6,16 +6,23 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
 
+import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
+import com.bku.cse.karaoke.model.KaraokeSong;
+import com.bku.cse.karaoke.model.RecordedSong;
 import com.bku.cse.karaoke.util.Utils;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabSelectListener;
+
+import java.util.Date;
+import java.util.List;
 
 
 public class FeedActivity extends AppCompatActivity {
@@ -51,6 +58,24 @@ public class FeedActivity extends AppCompatActivity {
             bottomBarTab_me.setTitle("Me");
         }
 
+        //Test database
+        DatabaseHelper db = new DatabaseHelper(getApplicationContext());
+
+        RecordedSong recordedSong = new RecordedSong(
+                0, 0, "path__", "audio", true, new Date().toString(), 1, 2
+
+        );
+
+//        db.addRecordedSong(recordedSong);
+        List<RecordedSong> listKar = null;
+        listKar = db.get_AllRecordedSong();
+        for (RecordedSong recordedSong1: listKar) {
+
+            Log.d("Data Karaoke", "" + recordedSong1.getPath());
+
+        }
+        db.closeDB();
+
         //bottom bar listener
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -82,22 +107,6 @@ public class FeedActivity extends AppCompatActivity {
                 }
             }
         });
-
-        //Test SQL Lite
-        SQLiteDatabase myDatabase = openOrCreateDatabase("kar100", MODE_PRIVATE, null );
-        //myDatabase.execSQL("DROP TABLE TutorialsPoint;");
-        myDatabase.execSQL("CREATE TABLE IF NOT EXISTS TutorialsPoint(ID INTEGER PRIMARY KEY  AUTOINCREMENT, Username VARCHAR UNIQUE,Password VARCHAR);");
-        //myDatabase.execSQL("INSERT INTO TutorialsPoint('Username', 'Password') VALUES('admin','adm2222in');");
-//        myDatabase.execSQL("INSERT INTO TutorialsPoint VALUES('admin1','12345');");
-//        myDatabase.execSQL("INSERT INTO TutorialsPoint VALUES('admin2','123');");
-//        myDatabase.execSQL("INSERT INTO TutorialsPoint VALUES('admin3','12344');");
-
-        Cursor cursor = myDatabase.rawQuery("SELECT * FROM TutorialsPoint;", null);
-        TextView tv = (TextView) findViewById(R.id.textView4);
-
-        while ( cursor.moveToNext() ) {
-            tv.setText( tv.getText() + "-" + cursor.getString(0) );
-        }
     }
 
     @Override
