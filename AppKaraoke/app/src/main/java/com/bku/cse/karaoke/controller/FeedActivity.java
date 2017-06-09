@@ -14,6 +14,7 @@ import com.bku.cse.karaoke.R;
 
 import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
+import com.bku.cse.karaoke.model.FavoriteSong;
 import com.bku.cse.karaoke.model.KaraokeSong;
 import com.bku.cse.karaoke.model.RecordedSong;
 import com.bku.cse.karaoke.util.Utils;
@@ -29,9 +30,6 @@ public class FeedActivity extends AppCompatActivity {
     private static final String TAG = FeedActivity.class.getSimpleName();
     private static final int REQUEST_CODE_LOGIN = 11;
     private static final int REQUEST_CODE_SETTING = 12;
-    public final int REQUEST_INTERNET = 123;
-    public final int REQUEST_W_EXTERNAL = 124;
-    public final int REQUEST_RECORD_AUDIO = 125;
 
     BottomBar bottomBar;
     SessionManager session;
@@ -61,21 +59,33 @@ public class FeedActivity extends AppCompatActivity {
         //Test database
         DatabaseHelper db = new DatabaseHelper(getApplicationContext());
 
-        RecordedSong recordedSong = new RecordedSong(
-                0, 0, "path__", "audio", true, new Date().toString(), 1, 2
-
-        );
-
-//        db.addRecordedSong(recordedSong);
-        List<RecordedSong> listKar = null;
-        listKar = db.get_AllRecordedSong();
-        for (RecordedSong recordedSong1: listKar) {
-
-            Log.d("Data Karaoke", "" + recordedSong1.getPath());
-
+        List<FavoriteSong> listKar = null;
+        listKar = db.get_AllFavoriteSong();
+        for (FavoriteSong recordedSong1: listKar) {
+            Log.d("Data Karaoke", "" + recordedSong1.getKid());
         }
         db.closeDB();
+        setListener();
+    }
+    public void onClickTest() {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_LOGIN:
+                if ( session.isLoggedIn() ) {
+                    finish();
+                    Intent meIntent = new Intent(getApplicationContext(), MeActivity.class);
+                    startActivity(meIntent);
+                }
+                bottomBar.selectTabAtPosition(1);
+                break;
+            default:break;
+        }
+    }
+    public void setListener() {
         //bottom bar listener
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -108,20 +118,4 @@ public class FeedActivity extends AppCompatActivity {
             }
         });
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_CODE_LOGIN:
-                if ( session.isLoggedIn() ) {
-                    finish();
-                    Intent meIntent = new Intent(getApplicationContext(), MeActivity.class);
-                    startActivity(meIntent);
-                }
-                bottomBar.selectTabAtPosition(1);
-                break;
-            default:break;
-        }
-    }
-
 }

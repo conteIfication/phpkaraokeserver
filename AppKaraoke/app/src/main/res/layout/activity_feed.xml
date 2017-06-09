@@ -22,4 +22,13 @@
         android:background="@drawable/color_cursor_white"
         app:bb_behavior="shy"
         app:bb_tabXmlResource="@xml/bottombar_tabs" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginTop="100dp"
+        android:onClick="onClickTest"
+        android:text="Button" />
 </android.support.design.widget.CoordinatorLayout>

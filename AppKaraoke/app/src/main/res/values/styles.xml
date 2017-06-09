@@ -25,9 +25,14 @@
         <item name="colorControlNormal">?attr/colorPrimaryDark</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="colorControlHighlight">?attr/colorPrimary</item>
-        <!--Turn off action bar-->
-        <!--<item name="windowActionBar">false</item>-->
-        <!--<item name="windowNoTitle">true</item>-->
+
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+
+    </style>
+
+    <!--Custom Popup Menu-->
+    <style name="PopupMenu" parent="@android:style/Widget.PopupMenu">
+        <item name="android:popupBackground">@android:color/holo_green_light</item>
     </style>
 
     <style name="BaseStyle_theme2" parent="BaseStyle_theme1">

@@ -27,6 +27,7 @@
         <activity android:name=".controller.MeActivity" />
         <activity android:name=".controller.FeedActivity" />
 
+
         <activity
             android:name=".controller.DetailActivity"
             android:parentActivityName=".controller.HomeActivity" />
@@ -43,15 +44,16 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".controller.SelectModeKaraokeActivity"
             android:parentActivityName=".controller.HomeActivity"
-            android:noHistory="true"/>
+            android:noHistory="false"/>
         <activity android:name=".controller.SingRecordAudioActivity"
-            android:parentActivityName=".controller.SelectModeKaraokeActivity"
-            android:noHistory="true"/>
+            android:parentActivityName=".controller.SelectModeKaraokeActivity" />
+
         <activity android:name=".controller.SingRecordVideoActivity"
             android:noHistory="true"/>
         <activity android:name=".controller.SettingActivity"
             android:parentActivityName=".controller.HomeActivity"
             android:noHistory="true"/>
+        <activity android:name=".controller.PlayMusicActivity"/>
     </application>
 
 </manifest>

@@ -9,6 +9,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 
 public interface ApiInterface {
@@ -31,4 +32,7 @@ public interface ApiInterface {
 
     @GET("get-new-song")
     Call<KSongList> getNewSong();
+
+    @GET("karaoke-song/{kid}")
+    Call<KaraokeSong> getKaraokeSong( @Path("kid") int kid  );
 }

@@ -6,24 +6,32 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
+import com.bku.cse.karaoke.helper.DatabaseHelper;
+import com.bku.cse.karaoke.helper.SessionManager;
+import com.bku.cse.karaoke.model.FavoriteSong;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.util.Utils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import java.util.Date;
 
 /**
  * Created by thonghuynh on 5/29/2017.
  */
 
 public class SelectModeKaraokeActivity extends AppCompatActivity {
+    private static final int REQUEST_LOGIN = 120;
     Toolbar toolbar;
     LinearLayout linearLayout;
     ImageView imageView;
@@ -32,6 +40,10 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
     TextView btn_sing_play;
     RadioGroup rg_record_type;
     Bundle mBundle;
+    SessionManager session;
+    Menu menu;
+    DatabaseHelper db;
+    MenuItem menu_add_favorite;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +58,8 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
         btn_sing_record = (Button) findViewById(R.id.btn_sing_record);
         rg_record_type = (RadioGroup) findViewById(R.id.record_type);
         mBundle = new Bundle();
+        session = new SessionManager(getApplicationContext());
+        db = new DatabaseHelper(getApplicationContext());
 
         linearLayout = (LinearLayout) findViewById(R.id.linearLayout_mode_kar);
 
@@ -56,8 +70,8 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
 
         //get data of song
         Intent gI = getIntent();
-        //show it
         prepareSong(gI);
+
 
         //Create Event
         View.OnClickListener btn_sing_record_listener = new View.OnClickListener() {
@@ -80,7 +94,15 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
                 mBundle.putString("record_type", record_type);
                 iSing.putExtras(mBundle);
 
-                startActivity(iSing);
+                //check login
+                if ( session.isLoggedIn() ) {
+                    startActivity(iSing);
+                    finish();
+                }
+                else  {
+                    startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class), REQUEST_LOGIN);
+                }
+
             }
         };
 
@@ -116,7 +138,44 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_mode_karaoke, menu);
+
+        menu_add_favorite = menu.findItem(R.id.add_favorite);
+        //setFavorite Icon
+        if ( db.get_FavoriteKS( mBundle.getInt("kid") ) != null ) {
+            menu_add_favorite.setIcon( R.drawable.ic_star_yellow );
+        }
+        else {
+            menu_add_favorite.setIcon( R.drawable.ic_star_white );
+        }
+
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_favorite:
+                if ( db.get_FavoriteKS(mBundle.getInt("kid")) == null) {
+                    //not yet Favorite
+                    db.add_FavoriteKS( new FavoriteSong(0, new Date().toString(), mBundle.getInt("kid") ) );
+                    menu_add_favorite.setIcon( R.drawable.ic_star_yellow );
+                    Toast.makeText(getApplicationContext(), "Added favorite song", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    db.remove_FavoriteKS( mBundle.getInt("kid") );
+                    menu_add_favorite.setIcon( R.drawable.ic_star_white );
+                    Toast.makeText(getApplicationContext(), "Removed favorite song", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case android.R.id.home:
+                finish();
+                break;
+
+            default:break;
+        }
 
         return true;
     }

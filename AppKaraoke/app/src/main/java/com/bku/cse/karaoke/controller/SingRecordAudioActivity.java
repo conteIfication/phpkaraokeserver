@@ -1,14 +1,11 @@
 package com.bku.cse.karaoke.controller;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -16,8 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -35,12 +30,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
+import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.libffmpeg.ExecuteBinaryResponseHandler;
 import com.bku.cse.karaoke.libffmpeg.FFmpeg;
 import com.bku.cse.karaoke.libffmpeg.LoadBinaryResponseHandler;
 import com.bku.cse.karaoke.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.bku.cse.karaoke.libffmpeg.exceptions.FFmpegNotSupportedException;
+import com.bku.cse.karaoke.model.RecordedSong;
 import com.bku.cse.karaoke.rest.ApiClient;
+import com.bku.cse.karaoke.util.KaraokeStorage;
 import com.bku.cse.karaoke.util.SongLyric;
 import com.bku.cse.karaoke.util.Word;
 import com.bumptech.glide.Glide;
@@ -60,20 +58,12 @@ import java.util.concurrent.TimeUnit;
 import de.hdodenhof.circleimageview.CircleImageView;
 import jp.wasabeef.blurry.Blurry;
 
-/**
- * Created by thonghuynh on 5/29/2017.
- */
-
 public class SingRecordAudioActivity extends AppCompatActivity {
     private final String TAG = SingRecordAudioActivity.class.getSimpleName();
-    public final int REQUEST_INTERNET = 123;
-    public final int REQUEST_W_EXTERNAL = 124;
-    public final int REQUEST_RECORD_AUDIO = 125;
-
-    int startTimeFirstWord = 0;
 
     String beat_path_downloaded = "";
     String subtitle_path_downloaded = "";
+    String raw_record_path = "";
     String record_path = "";
 
     ImageView imgBackground;
@@ -84,14 +74,14 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
     Button btn_record_or_stop;
     ImageButton btn_play;
-    TextView tv_current_time, tv_label_download, tv_progress_status;
-
+    TextView tv_current_time, tv_label_download, tv_progress_status, tv_score;
     LinearLayout ll_wrap_download;
-
     Bundle mBundle;
+    DatabaseHelper db;
 
     //Lyric
     SongLyric lyric;
+    int startTimeFirstWord = 0;
 
     //Play music
     MediaPlayer mediaPlayer;
@@ -110,16 +100,6 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(SingRecordAudioActivity.this, new String[]{Manifest.permission.INTERNET}, REQUEST_INTERNET);
-        }
-        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(SingRecordAudioActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_W_EXTERNAL);
-        }
-        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(SingRecordAudioActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
-        }
-
 
         //get Intent
         Intent gIntent = getIntent();
@@ -146,33 +126,37 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         ll_wrap_download = (LinearLayout) findViewById(R.id.sra_wrap_download);
         tv_label_download = (TextView) findViewById(R.id.sra_label_download);
         tv_progress_status = (TextView) findViewById(R.id.sra_progress_status);
+        db = new DatabaseHelper(getApplicationContext());
+        tv_score = (TextView) findViewById(R.id.tv_score);
 
         //Load FFmpeg Library
         ffmpeg = FFmpeg.getInstance(this);
         loadFFMpegBinary();
 
         //download
-        new DownloadBeatSubTask().execute(ApiClient.BASE_URL + mBundle.getString("beat_path"));
-
+        new DownloadBeatSubTask().execute(
+                ApiClient.BASE_URL + mBundle.getString("beat_path"),
+                ApiClient.BASE_URL + mBundle.getString("subtitle_path")
+                );
 
         //init Player
         mediaPlayer = new MediaPlayer();
         mediaAudioRecorder = new MediaRecorder();
 
         //outputFile
-        String PATH_RECORD = Environment.getExternalStorageDirectory() + "/records/";
+        String PATH_RECORD = Environment.getExternalStorageDirectory() + KaraokeStorage.APP_STORAGE_RECORDS;
         File mFileTest = new File(PATH_RECORD);
         if (!mFileTest.exists()) {
             mFileTest.mkdirs();
         }
-        String recordName = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+        String recordName = new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) + "_raw.3gp";
 
         //set Media Recorder
         mediaAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        mediaAudioRecorder.setOutputFile( PATH_RECORD + recordName + "_AudioRecord.3gp" );
-        record_path = PATH_RECORD + recordName + "_AudioRecord.3gp";
+        mediaAudioRecorder.setOutputFile( PATH_RECORD + recordName );
+        raw_record_path = PATH_RECORD + recordName;
 
         //FUNCTION
         //hide Scroll Bar
@@ -205,10 +189,10 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         MediaPlayer.OnCompletionListener media_player_complete = new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                handler.removeCallbacks(UpdateSongTime);
-                mediaPlayer.reset();
-                progressBar.setProgress(0);
                 tv_current_time.setText("00:00");
+
+                //call
+                stopPlaying();
             }
         };
 
@@ -243,22 +227,22 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
 
         //SET LISTENER
-        btn_play.setOnClickListener(btn_play_listener);
+        //btn_play.setOnClickListener(btn_play_listener);
+
         btn_record_or_stop.setOnClickListener(btn_record_stop_listener);
         mediaPlayer.setOnCompletionListener( media_player_complete );
 
     }
 
     public void stopPlaying() {
+        handler.removeCallbacks(UpdateSongTime);
         mediaPlayer.stop();
         mediaAudioRecorder.stop();
 
         progressBar.setProgress(0);
         btn_play.setImageResource(R.drawable.ic_media_play_dark);
 
-        Toast.makeText(getApplicationContext(), "Save Record", Toast.LENGTH_LONG).show();
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert);
         alertDialogBuilder.setTitle("Request");
         alertDialogBuilder.setMessage("Do you want to save this record?");
         //Positive Button
@@ -269,30 +253,29 @@ public class SingRecordAudioActivity extends AppCompatActivity {
                         btn_record_or_stop.setVisibility(View.INVISIBLE);
                         tv_label_download.setText("Saving record....");
                         ll_wrap_download.setVisibility(View.VISIBLE);
-                        String song1 = beat_path_downloaded.substring(beat_path_downloaded.lastIndexOf("/") + 1, beat_path_downloaded.length() );
-                        String song2 = record_path.substring(record_path.lastIndexOf("/") + 1, record_path.length() );
+                        String output_name = new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) + "_audiomix.mp3";
 
-                        String output = "/sdcard/records/" + new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) + "_audiomix.mp3";
+                        String beat_file = "/sdcard" + KaraokeStorage.APP_STORAGE_SONGS + beat_path_downloaded.substring(beat_path_downloaded.lastIndexOf("/") + 1, beat_path_downloaded.length() );
+                        String record_file = "/sdcard" + KaraokeStorage.APP_STORAGE_RECORDS +  raw_record_path.substring(raw_record_path.lastIndexOf("/") + 1, raw_record_path.length() );
+                        String output = "/sdcard" + KaraokeStorage.APP_STORAGE_RECORDS + output_name ;
 
-                        String cmd = "-y -i /sdcard/download/"+song1+" -i /sdcard/records/"+song2+" -filter_complex amix=inputs=2:duration=shortest -ac 2 -c:a libmp3lame -q:a 2 " + output;
+                        //set record path
+                        record_path = Environment.getExternalStorageState() + KaraokeStorage.APP_STORAGE_RECORDS + output_name;
+
+                        String cmd = "-y -i " + beat_file + " -i " + record_file + " -filter_complex amix=inputs=2:duration=shortest -ac 2 -c:a libmp3lame -q:a 2 " + output;
                         String[] command = cmd.split(" ");
                         if (command.length != 0) {
                             execFFmpegBinary(command);
                         } else {
                             Toast.makeText(getBaseContext(), getString(R.string.empty_command_toast), Toast.LENGTH_LONG).show();
                         }
-
-
                     }
                 });
         //Negative Button
         alertDialogBuilder.setNegativeButton("NO",new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                File file = new File(record_path);
-                if (file.exists()) {
-                    file.delete();
-                }
+                deleteFile_(raw_record_path);
                 finish();
             }
         });
@@ -305,8 +288,14 @@ public class SingRecordAudioActivity extends AppCompatActivity {
             }
         });
         alertDialog.show();
-
-
+    }
+    public boolean deleteFile_(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+            return true;
+        }
+        return false;
     }
 
     public void startPlaying() {
@@ -323,7 +312,7 @@ public class SingRecordAudioActivity extends AppCompatActivity {
     public void pausePlaying() {
         if ( recordingFlag ) {
             mediaAudioRecorder.pause();
-            Log.d("__pause", "dddfd");
+            Log.d("__pause", "Media Play is paused.");
         }
 
         mediaPlayer.pause();
@@ -455,129 +444,6 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         mediaAudioRecorder.release();
     }
 
-    public void downloadMp3(String url) {
-        InputStream in = null;
-        try {
-            String PATH = Environment.getExternalStorageDirectory() + "/download/";
-
-            int lastSlash = url.lastIndexOf("/");
-            String fName = url.substring(lastSlash + 1, url.length() - 4);
-
-            beat_path_downloaded = PATH + fName + ".mp3";
-
-            File file = new File(PATH);
-            if(!file.exists()) {
-                file.mkdirs();
-            }
-
-            in = OpenHttpConnection(url);
-
-            File outputFile = new File(file, fName + ".mp3");
-            if (outputFile.exists())
-                return;
-
-            FileOutputStream fos = new FileOutputStream(outputFile);
-
-            byte[] buffer = new byte[1024];
-            int len1 = 0;
-            while ((len1 = in.read(buffer)) != -1) {
-                fos.write(buffer, 0, len1);
-            }
-            fos.flush();
-            fos.close();
-            in.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public class DownloadBeatSubTask extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            //Disable click btn_play
-            downloadMp3(params[0]);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Log.d("DownMP3--", "success");
-
-            //set MP3 source
-            try {
-                mediaPlayer.setDataSource(beat_path_downloaded);
-                mediaPlayer.prepare();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //set Progress Bar
-            progressBar.setMax(mediaPlayer.getDuration());
-
-            //download XML file
-            new DownloadXMLTask().execute(ApiClient.BASE_URL + mBundle.getString("subtitle_path"));
-        }
-    }
-
-    public void downloadXml(String url) {
-        InputStream in = null;
-        try {
-            String PATH = Environment.getExternalStorageDirectory() + "/download/";
-            //String fileName = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-
-            int lastSlash = url.lastIndexOf("/");
-            String fName = url.substring(lastSlash + 1, url.length() - 4);
-
-            subtitle_path_downloaded = PATH + fName + ".xml";
-
-            File file = new File(PATH);
-            if(!file.exists()) {
-                file.mkdirs();
-            }
-
-            in = OpenHttpConnection(url);
-
-            File outputFile = new File(file, fName + ".xml");
-            if (outputFile.exists())
-                return;
-
-            FileOutputStream fos = new FileOutputStream(outputFile);
-
-            byte[] buffer = new byte[1024];
-            int len1 = 0;
-            while ((len1 = in.read(buffer)) != -1) {
-                fos.write(buffer, 0, len1);
-            }
-            fos.flush();
-            fos.close();
-            in.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public class DownloadXMLTask extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            downloadXml(params[0]);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Log.d("DownXML--", "success:" + subtitle_path_downloaded);
-
-            //parse Lyric
-            lyric.doParse( subtitle_path_downloaded );
-            startTimeFirstWord = lyric.getWord(0).getTimeStart();
-
-            //hide download progress
-            ll_wrap_download.setVisibility(View.INVISIBLE);
-
-            //show Btn play and btn Start
-            btn_record_or_stop.setVisibility(View.VISIBLE);
-            btn_play.setVisibility(View.VISIBLE);
-        }
-    }
-
     public InputStream OpenHttpConnection(String urlString) throws IOException {
         InputStream in = null;
         int response = -1;
@@ -603,6 +469,94 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         }
         return in;
     }
+    public String downloadFile(String url, String folderPath) {
+        InputStream in = null;
+        String PATH = Environment.getExternalStorageDirectory() + folderPath;
+
+        int lastSlash = url.lastIndexOf("/");
+        String fName = url.substring(lastSlash + 1, url.length());
+
+        try {
+            File file = new File(PATH);
+            if(!file.exists()) {
+                file.mkdirs();
+            }
+
+            in = OpenHttpConnection(url);
+
+            File outputFile = new File(file, fName);
+            if (outputFile.exists())
+                return ( PATH + fName );
+
+            FileOutputStream fos = new FileOutputStream(outputFile);
+
+            byte[] buffer = new byte[1024];
+            int len1 = 0;
+            while ((len1 = in.read(buffer)) != -1) {
+                fos.write(buffer, 0, len1);
+            }
+            fos.flush();
+            fos.close();
+            in.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //return
+        return ( PATH + fName );
+    }
+    public class DownloadBeatSubTask extends AsyncTask<String, Void, String> {
+        String subtitle_path;
+
+        @Override
+        protected String doInBackground(String... params) {
+            subtitle_path = params[1];
+
+            return downloadFile(params[0], KaraokeStorage.APP_STORAGE_SONGS);
+        }
+        @Override
+        protected void onPostExecute(String pathOnDevice) {
+            beat_path_downloaded = pathOnDevice;
+            Log.d("Downloaded_MP3", "path:" + beat_path_downloaded );
+
+            //set MP3 source
+            try {
+                mediaPlayer.setDataSource(beat_path_downloaded);
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //set Progress Bar
+            progressBar.setMax(mediaPlayer.getDuration());
+
+            //after download MP3 --> download XML file
+            new DownloadXMLTask().execute( subtitle_path );
+        }
+    }
+    public class DownloadXMLTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            return downloadFile(params[0], KaraokeStorage.APP_STORAGE_SONGS);
+        }
+        @Override
+        protected void onPostExecute(String pathOnDevice) {
+            subtitle_path_downloaded = pathOnDevice;
+            Log.d("Downloaded_XML", "path:" + subtitle_path_downloaded);
+
+            //parse Lyric
+            lyric.doParse( subtitle_path_downloaded );
+            startTimeFirstWord = lyric.getWord(0).getTimeStart();
+
+            //hide download progress
+            ll_wrap_download.setVisibility(View.INVISIBLE);
+
+            //show Btn play and btn Start
+            btn_record_or_stop.setVisibility(View.VISIBLE);
+            btn_play.setVisibility(View.VISIBLE);
+        }
+    }
 
     //FFMPEG
     private void loadFFMpegBinary() {
@@ -617,46 +571,43 @@ public class SingRecordAudioActivity extends AppCompatActivity {
             showUnsupportedExceptionDialog();
         }
     }
-
     private void execFFmpegBinary(final String[] command) {
         try {
             ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
                 @Override
                 public void onFailure(String s) {
-
 //                    addTextViewToLayout("FAILED with output : "+s);
+                    Toast.makeText(getApplicationContext(),"Record hasn't been saved. ERROR! " + s,Toast.LENGTH_LONG).show();
+                    deleteFile_(raw_record_path);
+                    finish();
                 }
 
                 @Override
                 public void onSuccess(String s) {
+                    ll_wrap_download.setVisibility(View.INVISIBLE);
+                    deleteFile_(raw_record_path);
+                    //insert to database
+                    RecordedSong newRecord = new RecordedSong( 0, 0, record_path, "audio", false, new Date().toString(), mBundle.getInt("kid"), 0 );
+                    db.add_RecordedSong( newRecord );
 
-//                    addTextViewToLayout("SUCCESS with output : "+s);
+                    Toast.makeText(getApplicationContext(),"Record has been saved.",Toast.LENGTH_LONG).show();
+                    finish();
                 }
 
                 @Override
                 public void onProgress(String s) {
                     Log.d(TAG, "Started command : ffmpeg "+command);
                     tv_progress_status.setText(s);
-//                    addTextViewToLayout("progress : "+s)
-//                    progressDialog.setMessage("Processing\n"+s);
                 }
 
                 @Override
                 public void onStart() {
-//                    outputLayout.removeAllViews();
-
                     Log.d(TAG, "Started command : ffmpeg " + command);
-//                    progressDialog.setMessage("Processing...");
-//                    progressDialog.show();
                 }
 
                 @Override
                 public void onFinish() {
                     Log.d(TAG, "Finished command : ffmpeg "+command);
-                    ll_wrap_download.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(),"Saved Record",Toast.LENGTH_LONG).show();
-                    finish();
-//                    progressDialog.dismiss();
                 }
             });
         } catch (FFmpegCommandAlreadyRunningException e) {
@@ -679,6 +630,5 @@ public class SingRecordAudioActivity extends AppCompatActivity {
                 .show();
 
     }
-
 
 }

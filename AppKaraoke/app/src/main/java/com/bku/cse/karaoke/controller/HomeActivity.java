@@ -23,6 +23,7 @@ import com.bku.cse.karaoke.fragment.NewFragment;
 import com.bku.cse.karaoke.fragment.RecentFragment;
 import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
+import com.bku.cse.karaoke.util.KaraokeStorage;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
@@ -37,9 +38,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SETTING = 10;
     private static final int REQUEST_CODE_LOGIN = 11;
     private final String TAG = HomeActivity.class.getSimpleName();
-    public final int REQUEST_INTERNET = 123;
-    public final int REQUEST_W_EXTERNAL = 124;
-    public final int REQUEST_RECORD_AUDIO = 125;
+
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private SessionManager session;
@@ -255,10 +254,22 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        //check Login Status
+        if ( !session.isLoggedIn() ) {
+            bottomBarTab_me.setTitle("Guest");
+        }else {
+            bottomBarTab_me.setTitle("Me");
+        }
+        super.onResume();
+    }
+
     private boolean doubleBackToExitPressedOnce = false;
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
+            KaraokeStorage.deleteDownloadedFile();
             super.onBackPressed();
             return;
         }

@@ -86,7 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Storing user details in database
      * */
-    public void addRecordedSong(RecordedSong rs) {
+    public void add_RecordedSong(RecordedSong rs) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -132,7 +132,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        db.close();
         // return user
         Log.d(TAG, "Fetching user from Sqlite: " + list.size());
 
@@ -165,6 +164,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_RECORDED_SONG, KEY_RS_ID + "=?", new String[]{ String.valueOf(rsid) });
         Log.d(TAG, "Deleted recorded song with id : " + rsid);
     }
+    public void delete_allRecordedSong() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_RECORDED_SONG, null, null);
+        Log.d(TAG, "Deleted all recorded song in tabe " + TABLE_RECORDED_SONG);
+    }
 
     // FAVORITE Karaoke Song table
     public void add_FavoriteKS(FavoriteSong fsong) {
@@ -179,11 +184,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d(TAG, "New favorite song inserted into sqlite: " + id);
     }
 
-    public void delete_FavoriteKS(int fid) {
+    public void remove_FavoriteKS(int kid) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        db.delete(TABLE_RECORDED_SONG, KEY_FKS_ID + "=?", new String[]{ String.valueOf(fid) });
-        Log.d(TAG, "Deleted favorite song with id : " + fid);
+        db.delete(TABLE_FAVORITE_KS, KEY_FKS_KID + "=?", new String[]{ String.valueOf(kid) });
+        Log.d(TAG, "Deleted favorite song with kid : " + kid);
+    }
+
+    public FavoriteSong get_FavoriteKS(int kid) {
+        String selectQuery = "SELECT  * FROM " + TABLE_FAVORITE_KS + " WHERE kid=" + kid;
+        FavoriteSong favoriteSong = null;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if ( cursor.moveToFirst() ) {
+            favoriteSong = new FavoriteSong(
+                    cursor.getInt( cursor.getColumnIndex("fid") ),
+                    cursor.getString( cursor.getColumnIndex("up_time") ),
+                    cursor.getInt( cursor.getColumnIndex("kid") )
+            );
+        }
+
+        return favoriteSong;
+    }
+    public List<FavoriteSong> get_AllFavoriteSong() {
+        List<FavoriteSong> list = new ArrayList<>();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_FAVORITE_KS;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        while (cursor.moveToNext()) {
+            FavoriteSong newFS = new FavoriteSong();
+
+            newFS.setFid( cursor.getInt( cursor.getColumnIndex( KEY_FKS_ID ) ) );
+            newFS.setUp_time( cursor.getString( cursor.getColumnIndex( KEY_FKS_UP_TIME ) ) );
+            newFS.setKid( cursor.getInt( cursor.getColumnIndex( KEY_FKS_KID ) ) );
+
+            list.add(newFS);
+        }
+
+        cursor.close();
+        // return user
+        Log.d(TAG, "Fetching fs from Sqlite: " + list.size());
+
+        return list;
     }
 
 

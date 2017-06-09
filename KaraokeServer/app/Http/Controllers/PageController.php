@@ -153,4 +153,10 @@ class PageController extends Controller
 
         return json_encode(['listKSongs' => $hostsongs]);
     }
+    public function getKaraokeSong($kid) {
+        $song = KaraokeSong::where('kid', $kid)->first();
+
+        return json_encode($song);
+    }
+
 }
