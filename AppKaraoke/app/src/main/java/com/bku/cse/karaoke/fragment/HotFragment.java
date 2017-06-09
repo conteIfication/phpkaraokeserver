@@ -1,7 +1,5 @@
 package com.bku.cse.karaoke.fragment;
 
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,22 +11,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.bku.cse.karaoke.adapter.KaraokeAdapter;
-import com.bku.cse.karaoke.controller.DetailActivity;
 import com.bku.cse.karaoke.R;
-import com.bku.cse.karaoke.adapter.GridAdapter;
 import com.bku.cse.karaoke.model.KSongList;
-import com.bku.cse.karaoke.model.SmallItem;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.rest.ApiInterface;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;

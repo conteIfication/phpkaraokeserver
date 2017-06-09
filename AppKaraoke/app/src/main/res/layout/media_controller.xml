@@ -31,12 +31,13 @@
             android:layout_height="match_parent"
             android:text="02:23"/>
 
-        <ImageButton android:id="@+id/media_fullscreen"
-            android:layout_gravity="center"
+        <ImageButton
+            android:id="@+id/media_fullscreen"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_media_fullscreen_dark"
-            android:background="@android:color/transparent" />
+            android:layout_gravity="center"
+            android:background="#000000"
+            android:src="@drawable/ic_media_fullscreen_dark" />
 
     </LinearLayout>
 

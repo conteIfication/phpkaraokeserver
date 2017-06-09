@@ -9,24 +9,19 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
-import com.bku.cse.karaoke.controller.DetailActivity;
 import com.bku.cse.karaoke.controller.PlayMusicActivity;
-import com.bku.cse.karaoke.controller.SelectModeKaraokeActivity;
 import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.model.KaraokeSong;
 import com.bku.cse.karaoke.model.RecordedSong;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.rest.ApiInterface;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 import java.util.ArrayList;
