@@ -20,6 +20,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -56,7 +57,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import jp.wasabeef.blurry.Blurry;
 
 public class SingRecordAudioActivity extends AppCompatActivity {
     private final String TAG = SingRecordAudioActivity.class.getSimpleName();
@@ -67,8 +67,8 @@ public class SingRecordAudioActivity extends AppCompatActivity {
     String record_path = "";
 
     ImageView imgBackground;
-    CircleImageView imageView;
-    ScrollView scrollView;
+    CircleImageView imgSong;
+    ScrollView scrollView_lyric;
     LinearLayout ll_lyric;
     ProgressBar progressBar;
 
@@ -83,15 +83,13 @@ public class SingRecordAudioActivity extends AppCompatActivity {
     SongLyric lyric;
     int startTimeFirstWord = 0;
 
-    //Play music
+    //Player
     MediaPlayer mediaPlayer;
-
     //Recorder
     MediaRecorder mediaAudioRecorder;
 
     //Flag Playing
     boolean playingFlag = false;
-
     //Flag Record
     boolean recordingFlag = false;
 
@@ -108,26 +106,29 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sing_record_audio);
 
+        //hide phone bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         //set Background Image
         imgBackground = (ImageView) findViewById(R.id.sra_background);
-        Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.my_image));
+        Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.nepal));
         imgBackground.setImageBitmap( bitmap );
         imgBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         //init View
-        scrollView = (ScrollView) findViewById(R.id.sra_scroll_view);
+        scrollView_lyric = (ScrollView) findViewById(R.id.sra_scroll_view);
         ll_lyric = (LinearLayout) findViewById(R.id.sra_ll_lyrics);
         btn_play = (ImageButton) findViewById(R.id.sra_btn_play);
         tv_current_time = (TextView) findViewById(R.id.sra_current_time);
         progressBar = (ProgressBar) findViewById(R.id.sra_progressBar);
-        imageView = (CircleImageView) findViewById(R.id.sra_avatar);
+        imgSong = (CircleImageView) findViewById(R.id.sra_avatar);
         btn_record_or_stop = (Button) findViewById(R.id.sra_record_or_stop);
         lyric = new SongLyric();
         ll_wrap_download = (LinearLayout) findViewById(R.id.sra_wrap_download);
         tv_label_download = (TextView) findViewById(R.id.sra_label_download);
         tv_progress_status = (TextView) findViewById(R.id.sra_progress_status);
         db = new DatabaseHelper(getApplicationContext());
-        tv_score = (TextView) findViewById(R.id.tv_score);
+        tv_score = (TextView) findViewById(R.id.sra_score);
 
         //Load FFmpeg Library
         ffmpeg = FFmpeg.getInstance(this);
@@ -160,7 +161,8 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
         //FUNCTION
         //hide Scroll Bar
-        scrollView.setVerticalScrollBarEnabled(false);
+        scrollView_lyric.setVerticalScrollBarEnabled(false);
+
         //clear ll_lyric
         ll_lyric.removeAllViews();
 
@@ -168,7 +170,7 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(ApiClient.BASE_URL + mBundle.getString("image"))
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(imageView);
+                .into(imgSong);
 
         //Make Listener
         View.OnClickListener btn_play_listener = new View.OnClickListener() {
@@ -189,10 +191,13 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         MediaPlayer.OnCompletionListener media_player_complete = new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                tv_current_time.setText("00:00");
-
                 //call
-                stopPlaying();
+                if (recordingFlag) {
+                    stopRecording();
+                }
+                else {
+                    stopPlaying();
+                }
             }
         };
 
@@ -201,46 +206,69 @@ public class SingRecordAudioActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (recordingFlag) {
-                    //is playing ->Stop Record
-                    stopPlaying();
+                    stopRecording();
                 }
                 else {
-
                     //not playing
-                    btn_record_or_stop.setText("STOP RECORDING");
-
-                    //prepare recorder
-                    try {
-                        mediaAudioRecorder.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    mediaAudioRecorder.start();
-                    //playing
-                    startPlaying();
+                    startRecording();
                 }
                 //Set Flag
-                recordingFlag = true;
+                recordingFlag = !recordingFlag;
                 playingFlag = !playingFlag;
             }
         };
 
-
         //SET LISTENER
-        //btn_play.setOnClickListener(btn_play_listener);
-
         btn_record_or_stop.setOnClickListener(btn_record_stop_listener);
         mediaPlayer.setOnCompletionListener( media_player_complete );
 
     }
-
+    public void startPlaying() {
+        mediaPlayer.start();
+        UpdateSongTime.run();
+        //setIcon Pause
+        btn_play.setImageResource(R.drawable.ic_media_pause_dark);
+    }
+    public void pausePlaying() {
+        mediaPlayer.pause();
+        handler.removeCallbacks(UpdateSongTime);
+        //setIcon Play
+        btn_play.setImageResource(R.drawable.ic_media_play_dark);
+    }
     public void stopPlaying() {
         handler.removeCallbacks(UpdateSongTime);
+        tv_current_time.setText("00:00");
         mediaPlayer.stop();
+        //setIcon Play
+        btn_play.setImageResource(R.drawable.ic_media_play_dark);
+        progressBar.setProgress(0);
+    }
+
+    public void startRecording() {
+        startPlaying();
+
+        //prepare recorder
+        try {
+            mediaAudioRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        btn_record_or_stop.setText("STOP RECORDING");
+        mediaAudioRecorder.start();
+
+        //score start
+        ScoreCalTest scoreCal = new ScoreCalTest(mediaAudioRecorder); // Truyền mediarecoder vô
+        scoreCal.execute();
+
+    }
+    public void stopRecording() {
+        stopPlaying();
         mediaAudioRecorder.stop();
 
-        progressBar.setProgress(0);
-        btn_play.setImageResource(R.drawable.ic_media_play_dark);
+        //show score
+        tv_score.setText("" + score);
+        tv_score.setVisibility(View.VISIBLE);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert);
         alertDialogBuilder.setTitle("Request");
@@ -267,7 +295,7 @@ public class SingRecordAudioActivity extends AppCompatActivity {
                         if (command.length != 0) {
                             execFFmpegBinary(command);
                         } else {
-                            Toast.makeText(getBaseContext(), getString(R.string.empty_command_toast), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.empty_command_toast), Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -280,13 +308,13 @@ public class SingRecordAudioActivity extends AppCompatActivity {
             }
         });
         final AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+       /* alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
                 alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.GRAY);
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.GRAY);
             }
-        });
+        });*/
         alertDialog.show();
     }
     public boolean deleteFile_(String path) {
@@ -298,27 +326,6 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         return false;
     }
 
-    public void startPlaying() {
-        if ( recordingFlag ) {
-            mediaAudioRecorder.start();
-        }
-        mediaPlayer.start();
-        UpdateSongTime.run();
-
-        //setIcon Pause
-        btn_play.setImageResource(R.drawable.ic_media_pause_dark);
-    }
-
-    public void pausePlaying() {
-        if ( recordingFlag ) {
-            mediaAudioRecorder.pause();
-            Log.d("__pause", "Media Play is paused.");
-        }
-
-        mediaPlayer.pause();
-        handler.removeCallbacks(UpdateSongTime);
-        btn_play.setImageResource(R.drawable.ic_media_play_dark);
-    }
 
     //Init Parameter
     int playingLine = -1;
@@ -350,21 +357,21 @@ public class SingRecordAudioActivity extends AppCompatActivity {
             if ( Math.abs(currentLine - playingLine) >= 1 ) {
 
                 if (playingLine == -1) {
-                    ll_lyric.addView( getLyricOnLine(0) );
-                    ll_lyric.addView( getLyricOnLine(1) );
-                    ll_lyric.addView( getLyricOnLine(2) );
-                    ll_lyric.addView( getLyricOnLine(3) );
+                    ll_lyric.addView( getLyricOneLine(0) );
+                    ll_lyric.addView( getLyricOneLine(1) );
+                    ll_lyric.addView( getLyricOneLine(2) );
+                    ll_lyric.addView( getLyricOneLine(3) );
                     addedLine = 3;
                 }
                 else {
-                    ll_lyric.addView( getLyricOnLine(++addedLine) );
+                    ll_lyric.addView( getLyricOneLine(++addedLine) );
                 }
 
                 //ScrollView Slide Down
-                scrollView.post(new Runnable() {
+                scrollView_lyric.post(new Runnable() {
                     @Override
                     public void run() {
-                        scrollView.smoothScrollTo(0, ll_lyric.getBottom());
+                        scrollView_lyric.smoothScrollTo(0, ll_lyric.getBottom());
                     }
                 });
                 //set Playing Line
@@ -389,7 +396,7 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         }
     }
 
-    public LinearLayout getLyricOnLine( int line ) {
+    public LinearLayout getLyricOneLine(int line ) {
         LinearLayout newLL = new LinearLayout(getApplicationContext());
         newLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         newLL.setOrientation(LinearLayout.HORIZONTAL);
@@ -420,20 +427,6 @@ public class SingRecordAudioActivity extends AppCompatActivity {
             }
         }
         return newLL;
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        //Blur Image Background
-        Blurry.with(getApplicationContext())
-                .radius(25)
-                .sampling(5)
-                .color(Color.argb(66, 0, 0, 0))
-                .async()
-                .capture(imgBackground)
-                .into(imgBackground);
-        imgBackground.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -631,4 +624,77 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
     }
 
+
+    //SCore
+    float score;
+    private class ScoreCalTest extends AsyncTask<Void, Void, Void> {
+        private MediaRecorder mRecorder = null;
+
+        private int[] scoreTemp;
+
+        ScoreCalTest(MediaRecorder mRecorder) {
+            this.mRecorder = mRecorder;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            score = 0;
+            scoreTemp = new int[10];
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            int sum = 0;
+            while (recordingFlag) {
+                Sleep(200);
+                if (mRecorder != null) {
+                    System.out.println(mRecorder.getMaxAmplitude());
+                    int tmp = mRecorder.getMaxAmplitude();
+                    if (tmp < 1000) {
+                        scoreTemp[0]++;
+                    } else if (tmp < 2500) {
+                        scoreTemp[1]++;
+                        sum++;
+                    } else if (tmp < 3000) {
+                        scoreTemp[2]++;
+                        sum++;
+                    } else if (tmp < 3500) {
+                        scoreTemp[3]++;
+                        sum++;
+                    } else if (tmp < 4000) {
+                        scoreTemp[4] += 2;
+                        sum += 2;
+                    } else if (tmp < 5000) {
+                        scoreTemp[5] += 2;
+                        sum += 2;
+                    } else if (tmp < 6000) {
+                        scoreTemp[6] += 3;
+                        sum += 3;
+                    } else if (tmp < 7000) {
+                        scoreTemp[7] += 3;
+                        sum += 3;
+                    } else if (tmp < 8000) {
+                        scoreTemp[8] += 4;
+                        sum += 4;
+                    } else {
+                        scoreTemp[9] += 5;
+                        sum += 5;
+                    }
+                }
+            }
+            score = (scoreTemp[1] + 2 * scoreTemp[2] + 3 * scoreTemp[3]
+                    + 4 * scoreTemp[4] + 5 * scoreTemp[5] + 6 * scoreTemp[6]
+                    + 7 * scoreTemp[7] + 8 * scoreTemp[8] + 9 * scoreTemp[9]) / (float) sum;
+            System.out.println(score * 10); // Diem o day ****************************************************
+            return null;
+        }
+    }
+
+    public void Sleep(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (Exception e) {
+        }
+    }
 }

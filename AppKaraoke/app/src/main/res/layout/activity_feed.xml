@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
 
-    <TextView
-        android:id="@+id/textView4"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Feed"
-        android:textAlignment="center" />
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_factivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Feed Activity"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <Button
+            android:id="@+id/button_fac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="136dp"
+            android:layout_marginTop="134dp"
+            android:onClick="onClickTest"
+            android:text="Button"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_factivity" />
+
+    </android.support.constraint.ConstraintLayout>
+
 
     <com.roughike.bottombar.BottomBar
         android:id="@+id/bottombar"
@@ -22,13 +52,4 @@
         android:background="@drawable/color_cursor_white"
         app:bb_behavior="shy"
         app:bb_tabXmlResource="@xml/bottombar_tabs" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginTop="100dp"
-        android:onClick="onClickTest"
-        android:text="Button" />
 </android.support.design.widget.CoordinatorLayout>

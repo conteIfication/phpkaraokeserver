@@ -1,12 +1,23 @@
 package com.bku.cse.karaoke.controller;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 
 
+
 public class FeedActivity extends AppCompatActivity {
     private static final String TAG = FeedActivity.class.getSimpleName();
     private static final int REQUEST_CODE_LOGIN = 11;
@@ -33,7 +45,13 @@ public class FeedActivity extends AppCompatActivity {
 
     BottomBar bottomBar;
     SessionManager session;
-    private BottomBarTab bottomBarTab_me;
+    BottomBarTab bottomBarTab_me;
+    TextView textView;
+    Button button;
+
+    private Handler handler;
+    int x0, y0, x1, y1;
+    Shader shader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,6 +63,24 @@ public class FeedActivity extends AppCompatActivity {
         bottomBar = (BottomBar) findViewById(R.id.bottombar);
         session = new SessionManager(getApplicationContext());
         bottomBarTab_me = (BottomBarTab) findViewById(R.id.tab_me);
+        handler = new Handler();
+        button = (Button) findViewById(R.id.button_fac);
+
+        //Test
+        textView = (TextView) findViewById(R.id.tv_factivity);
+
+
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ObjectAnimator colorAnim = ObjectAnimator.ofInt(textView, "textColor",
+                        Color.RED, Color.GREEN);
+                colorAnim.setEvaluator(new ArgbEvaluator());
+                colorAnim.start();
+            }
+        });
+
 
         //Set Feed Tab Selected
         bottomBar.selectTabAtPosition(1);
@@ -55,20 +91,8 @@ public class FeedActivity extends AppCompatActivity {
         }else {
             bottomBarTab_me.setTitle("Me");
         }
-
-        //Test database
-        DatabaseHelper db = new DatabaseHelper(getApplicationContext());
-
-        List<FavoriteSong> listKar = null;
-        listKar = db.get_AllFavoriteSong();
-        for (FavoriteSong recordedSong1: listKar) {
-            Log.d("Data Karaoke", "" + recordedSong1.getKid());
-        }
-        db.closeDB();
+        //set listener
         setListener();
-    }
-    public void onClickTest() {
-
     }
 
     @Override
@@ -117,5 +141,10 @@ public class FeedActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 }
