@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import com.bku.cse.karaoke.R;
+import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.util.Utils;
 
 public class SettingActivity extends AppCompatActivity {
@@ -46,17 +47,10 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent resIntent = new Intent();
-        resIntent.putExtra("isChangedTheme", getChangedTheme());
+        resIntent.putExtra("isChangedTheme", true);
         resIntent.putExtra("text", "12345");
         setResult( RESULT_OK, resIntent );
         finish();
-//        super.onBackPressed();
     }
 
-    public Boolean getChangedTheme() {
-        return isChangedTheme;
-    }
-    public void setChangedTheme(Boolean changedTheme) {
-        isChangedTheme = changedTheme;
-    }
 }

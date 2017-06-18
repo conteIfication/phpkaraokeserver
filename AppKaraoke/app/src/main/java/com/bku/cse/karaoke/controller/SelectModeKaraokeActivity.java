@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,15 +18,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
+import com.bku.cse.karaoke.helper.BaseURLManager;
 import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.model.FavoriteSong;
 import com.bku.cse.karaoke.rest.ApiClient;
+import com.bku.cse.karaoke.rest.ApiInterface;
 import com.bku.cse.karaoke.util.Utils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import java.io.IOException;
 import java.util.Date;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by thonghuynh on 5/29/2017.
@@ -37,13 +46,14 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
     ImageView imageView;
     TextView tv_songname, tv_singer;
     Button btn_sing_record;
-    TextView btn_sing_play;
+    TextView btn_just_play;
     RadioGroup rg_record_type;
     Bundle mBundle;
     SessionManager session;
     Menu menu;
     DatabaseHelper db;
     MenuItem menu_add_favorite;
+    BaseURLManager baseURL;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +64,7 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
         imageView = (ImageView)findViewById(R.id.img_song_mode_kar);
         tv_songname = (TextView) findViewById(R.id.song_name_mode_kar);
         tv_singer = (TextView) findViewById(R.id.singer_mode_kar);
-        btn_sing_play = (TextView) findViewById(R.id.btn_sing_play);
+        btn_just_play = (TextView) findViewById(R.id.btn_sing_play);
         btn_sing_record = (Button) findViewById(R.id.btn_sing_record);
         rg_record_type = (RadioGroup) findViewById(R.id.record_type);
         mBundle = new Bundle();
@@ -62,7 +72,7 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
         db = new DatabaseHelper(getApplicationContext());
 
         linearLayout = (LinearLayout) findViewById(R.id.linearLayout_mode_kar);
-
+        baseURL = new BaseURLManager(this);
         toolbar = (Toolbar)findViewById(R.id.toolbar_mode_karaoke);
         toolbar.setTitle("Select karaoke mode");
         setSupportActionBar(toolbar);
@@ -96,19 +106,50 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
 
                 //check login
                 if ( session.isLoggedIn() ) {
+                    //add view_no
+                    ApiInterface apiService = ApiClient.getClient(getBaseContext()).create(ApiInterface.class);
+                    apiService.increaseView( mBundle.getInt("kid") ).enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+
+                        }
+                    });
+
+
+                    //start
                     startActivity(iSing);
                     finish();
                 }
                 else  {
                     startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class), REQUEST_LOGIN);
                 }
+            }
+        };
 
+        View.OnClickListener btn_just_play_listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent iSing = new Intent( getApplicationContext(), JustPlayActivity.class );
+                iSing.putExtras( mBundle );
+                //check login
+                if ( session.isLoggedIn() ) {
+                    startActivity(iSing);
+                    finish();
+                }
+                else  {
+                    startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class), REQUEST_LOGIN);
+                }
             }
         };
 
         //Set Event
         btn_sing_record.setOnClickListener( btn_sing_record_listener );
-
+        btn_just_play.setOnClickListener( btn_just_play_listener );
     }
 
     public void prepareSong(Intent i) {
@@ -129,7 +170,7 @@ public class SelectModeKaraokeActivity extends AppCompatActivity {
 
         tv_singer.setText(singer);
         tv_songname.setText(name);
-        Glide.with(getApplicationContext()).load(ApiClient.BASE_URL + image)
+        Glide.with(getApplicationContext()).load(baseURL.getBaseURL() + image)
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

@@ -26,6 +26,7 @@ public class SessionManager {
     // Shared preferences file name
     private static final String PREF_NAME = "KaraokeLogin";
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
+    private static final String KEY_IS_CHANGEDTHEME = "isChangedTheme";
 
     public SessionManager(Context context) {
         this._context = context;
@@ -72,5 +73,12 @@ public class SessionManager {
             user.setAvatar( pref.getString("avatar", "") );
         }
         return user;
+    }
+
+    public void setChangedTheme(boolean b) {
+        editor.putBoolean(KEY_IS_CHANGEDTHEME, true);
+    }
+    public boolean isChangeTheme() {
+        return pref.getBoolean(KEY_IS_CHANGEDTHEME, false);
     }
 }

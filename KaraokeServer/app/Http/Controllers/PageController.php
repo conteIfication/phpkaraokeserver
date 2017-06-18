@@ -159,4 +159,13 @@ class PageController extends Controller
         return json_encode($song);
     }
 
+    public function increaseView($kid) {
+        $song = KaraokeSong::where('kid', $kid)->first();
+
+        KaraokeSong::where('kid', $kid)
+            ->update(['view_no' => $song->view_no + 1]);
+
+        return "success";
+    }
+
 }

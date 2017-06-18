@@ -39,7 +39,6 @@ import com.bku.cse.karaoke.libffmpeg.LoadBinaryResponseHandler;
 import com.bku.cse.karaoke.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.bku.cse.karaoke.libffmpeg.exceptions.FFmpegNotSupportedException;
 import com.bku.cse.karaoke.model.RecordedSong;
-import com.bku.cse.karaoke.rest.ApiClient;
 import com.bku.cse.karaoke.util.KaraokeStorage;
 import com.bku.cse.karaoke.util.SongLyric;
 import com.bku.cse.karaoke.util.Word;
@@ -53,20 +52,21 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SingRecordAudioActivity extends AppCompatActivity {
-    private final String TAG = SingRecordAudioActivity.class.getSimpleName();
+/**
+ * Created by thonghuynh on 6/13/2017.
+ */
+
+public class JustPlayActivity  extends AppCompatActivity{
+    private final String TAG = JustPlayActivity.class.getSimpleName();
 
     String beat_path_downloaded = "";
     String subtitle_path_downloaded = "";
-    String raw_record_path = "";
-    String record_path = "";
 
     ImageView imgBackground;
     CircleImageView imgSong;
@@ -87,22 +87,12 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
     //Player
     MediaPlayer mediaPlayer;
-    //Recorder
-    MediaRecorder mediaAudioRecorder;
 
     //Flag Playing
     boolean playingFlag = false;
-    //Flag Record
-    boolean recordingFlag = false;
-
-    //FFmpeg
-    FFmpeg ffmpeg;
 
     //BASE_URL
     BaseURLManager baseURL;
-
-    //Score
-    ScoreCalTest scoreCal;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -130,7 +120,6 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         tv_current_time = (TextView) findViewById(R.id.sra_current_time);
         progressBar = (ProgressBar) findViewById(R.id.sra_progressBar);
         imgSong = (CircleImageView) findViewById(R.id.sra_avatar);
-        btn_record_or_stop = (Button) findViewById(R.id.sra_record_or_stop);
         lyric = new SongLyric();
         ll_wrap_download = (LinearLayout) findViewById(R.id.sra_wrap_download);
         tv_label_download = (TextView) findViewById(R.id.sra_label_download);
@@ -138,35 +127,17 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         tv_progress_status = (TextView) findViewById(R.id.sra_progress_status);
         db = new DatabaseHelper(getApplicationContext());
         tv_score = (TextView) findViewById(R.id.sra_score);
+        btn_record_or_stop = (Button) findViewById(R.id.sra_record_or_stop);
 
-        //Load FFmpeg Library
-        ffmpeg = FFmpeg.getInstance(this);
-        loadFFMpegBinary();
 
         //download
         new DownloadBeatSubTask().execute(
                 baseURL.getBaseURL() + mBundle.getString("beat_path"),
                 baseURL.getBaseURL() + mBundle.getString("subtitle_path")
-                );
+        );
 
         //init Player
         mediaPlayer = new MediaPlayer();
-        mediaAudioRecorder = new MediaRecorder();
-
-        //outputFile
-        String PATH_RECORD = Environment.getExternalStorageDirectory() + KaraokeStorage.APP_STORAGE_RECORDS;
-        File mFileTest = new File(PATH_RECORD);
-        if (!mFileTest.exists()) {
-            mFileTest.mkdirs();
-        }
-        String recordName = new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) + "_raw.3gp";
-
-        //set Media Recorder
-        mediaAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        mediaAudioRecorder.setOutputFile( PATH_RECORD + recordName );
-        raw_record_path = PATH_RECORD + recordName;
 
         //FUNCTION
         //hide Scroll Bar
@@ -198,32 +169,13 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         MediaPlayer.OnCompletionListener media_player_complete = new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                //call
-                if (recordingFlag) {
-                    stopRecording();
-                }
-                else {
-                    stopPlaying();
-                }
+                stopPlaying();
             }
         };
 
-        //btn Record OR Stop
-        View.OnClickListener btn_record_stop_listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (recordingFlag) {
-                    stopRecording();
-                }
-                else {
-                    //not playing
-                    startRecording();
-                }
-            }
-        };
 
         //SET LISTENER
-        btn_record_or_stop.setOnClickListener(btn_record_stop_listener);
+        btn_play.setOnClickListener( btn_play_listener );
         mediaPlayer.setOnCompletionListener( media_player_complete );
 
     }
@@ -243,6 +195,7 @@ public class SingRecordAudioActivity extends AppCompatActivity {
     }
     public void stopPlaying() {
         handler.removeCallbacks(UpdateSongTime);
+        tv_current_time.setText("00:00");
         mediaPlayer.stop();
         //setIcon Play
         btn_play.setImageResource(R.drawable.ic_media_play_dark);
@@ -250,72 +203,6 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         playingFlag = false;
     }
 
-    public void startRecording() {
-        startPlaying();
-        recordingFlag = true;
-        //prepare recorder
-        try {
-            mediaAudioRecorder.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        btn_record_or_stop.setText("STOP RECORDING");
-        mediaAudioRecorder.start();
-
-        //score start
-        scoreCal = new ScoreCalTest(mediaAudioRecorder); // Truyền mediarecoder vô
-        scoreCal.execute();
-
-    }
-    public void stopRecording() {
-        stopPlaying();
-        recordingFlag = false;
-        mediaAudioRecorder.stop();
-
-        //show score
-        tv_score.setVisibility(View.VISIBLE);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert);
-        alertDialogBuilder.setTitle("Request");
-        alertDialogBuilder.setMessage("Do you want to save this record?");
-        //Positive Button
-        alertDialogBuilder.setPositiveButton("YES",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        btn_record_or_stop.setVisibility(View.INVISIBLE);
-                        tv_label_download.setText("Saving record....");
-                        ll_wrap_download.setVisibility(View.VISIBLE);
-                        String output_name = new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) + "_audiomix.mp3";
-
-                        String beat_file = "/sdcard" + KaraokeStorage.APP_STORAGE_SONGS + beat_path_downloaded.substring(beat_path_downloaded.lastIndexOf("/") + 1, beat_path_downloaded.length() );
-                        String record_file = "/sdcard" + KaraokeStorage.APP_STORAGE_RECORDS +  raw_record_path.substring(raw_record_path.lastIndexOf("/") + 1, raw_record_path.length() );
-                        String output = "/sdcard" + KaraokeStorage.APP_STORAGE_RECORDS + output_name ;
-
-                        //set record path
-                        record_path = Environment.getExternalStorageDirectory() + KaraokeStorage.APP_STORAGE_RECORDS + output_name;
-
-                        String cmd = "-y -i " + beat_file + " -i " + record_file + " -filter_complex amix=inputs=2:duration=shortest -ac 2 -c:a libmp3lame -q:a 2 " + output;
-                        String[] command = cmd.split(" ");
-                        if (command.length != 0) {
-                            execFFmpegBinary(command);
-                        } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.empty_command_toast), Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-        //Negative Button
-        alertDialogBuilder.setNegativeButton("NO",new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                deleteFile_(raw_record_path);
-                finish();
-            }
-        });
-        final AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
     public boolean deleteFile_(String path) {
         File file = new File(path);
         if (file.exists()) {
@@ -428,26 +315,15 @@ public class SingRecordAudioActivity extends AppCompatActivity {
         return newLL;
     }
 
-
     @Override
     public void onBackPressed() {
-        if (!recordingFlag && !playingFlag) {
-            super.onBackPressed();
-            return;
-        }
-        if ( recordingFlag ) {
-            stopRecording();
-            return;
-        }
-        if ( playingFlag ) {
+        if (playingFlag) {
             stopPlaying();
             super.onBackPressed();
+            return;
         }
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
+        super.onBackPressed();
     }
 
     public InputStream OpenHttpConnection(String urlString) throws IOException {
@@ -557,163 +433,7 @@ public class SingRecordAudioActivity extends AppCompatActivity {
 
             //hide download progress
             ll_wrap_download.setVisibility(View.INVISIBLE);
-
-            //show Btn play and btn Start
-            btn_record_or_stop.setVisibility(View.VISIBLE);
             btn_play.setVisibility(View.VISIBLE);
-        }
-    }
-
-    //FFMPEG
-    private void loadFFMpegBinary() {
-        try {
-            ffmpeg.loadBinary(new LoadBinaryResponseHandler() {
-                @Override
-                public void onFailure() {
-                    showUnsupportedExceptionDialog();
-                }
-            });
-        } catch (FFmpegNotSupportedException e) {
-            showUnsupportedExceptionDialog();
-        }
-    }
-    private void execFFmpegBinary(final String[] command) {
-        try {
-            ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
-                @Override
-                public void onFailure(String s) {
-//                    addTextViewToLayout("FAILED with output : "+s);
-                    Toast.makeText(getApplicationContext(),"Record hasn't been saved. ERROR! " + s,Toast.LENGTH_LONG).show();
-                    deleteFile_(raw_record_path);
-                    finish();
-                }
-
-                @Override
-                public void onSuccess(String s) {
-                    ll_wrap_download.setVisibility(View.INVISIBLE);
-                    deleteFile_(raw_record_path);
-                    //insert to database
-                    RecordedSong newRecord = new RecordedSong( 0, (int)score * 10, record_path, "audio", false, new Date().toString(), mBundle.getInt("kid"), 0 );
-                    db.add_RecordedSong( newRecord );
-
-                    Toast.makeText(getApplicationContext(),"Record has been saved.",Toast.LENGTH_LONG).show();
-                    finish();
-                }
-
-                @Override
-                public void onProgress(String s) {
-                    Log.d(TAG, "Started command : ffmpeg "+command);
-                    tv_progress_status.setText(s);
-                }
-
-                @Override
-                public void onStart() {
-                    Log.d(TAG, "Started command : ffmpeg " + command);
-                }
-
-                @Override
-                public void onFinish() {
-                    Log.d(TAG, "Finished command : ffmpeg "+command);
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            Log.e("FFmpeg error", e.getLocalizedMessage());
-        }
-    }
-    private void showUnsupportedExceptionDialog() {
-        new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(getString(R.string.device_not_supported))
-                .setMessage(getString(R.string.device_not_supported_message))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.d("This Device", "Not support for ffmpeg");
-                    }
-                })
-                .create()
-                .show();
-
-    }
-
-
-    //SCore
-    float score;
-    private class ScoreCalTest extends AsyncTask<Void, Void, Float> {
-        private MediaRecorder mRecorder = null;
-
-        private int[] scoreTemp;
-
-        ScoreCalTest(MediaRecorder mRecorder) {
-            this.mRecorder = mRecorder;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            score = 0;
-            scoreTemp = new int[10];
-        }
-
-        @Override
-        protected Float doInBackground(Void... arg0) {
-            int sum = 0;
-            while (recordingFlag) {
-                Sleep(200);
-                if (mRecorder != null) {
-                    int tmp = mRecorder.getMaxAmplitude();
-                    System.out.println("tmp :" + tmp);
-
-                    if (tmp < 1000) {
-                        scoreTemp[0]++;
-                    } else if (tmp < 2500) {
-                        scoreTemp[1]++;
-                        sum++;
-                    } else if (tmp < 3000) {
-                        scoreTemp[2]++;
-                        sum++;
-                    } else if (tmp < 3500) {
-                        scoreTemp[3]++;
-                        sum++;
-                    } else if (tmp < 4000) {
-                        scoreTemp[4] += 2;
-                        sum += 2;
-                    } else if (tmp < 5000) {
-                        scoreTemp[5] += 2;
-                        sum += 2;
-                    } else if (tmp < 6000) {
-                        scoreTemp[6] += 3;
-                        sum += 3;
-                    } else if (tmp < 7000) {
-                        scoreTemp[7] += 3;
-                        sum += 3;
-                    } else if (tmp < 8000) {
-                        scoreTemp[8] += 4;
-                        sum += 4;
-                    } else {
-                        scoreTemp[9] += 5;
-                        sum += 5;
-                    }
-                }
-            }
-            score = (scoreTemp[1] + 2 * scoreTemp[2] + 3 * scoreTemp[3]
-                    + 4 * scoreTemp[4] + 5 * scoreTemp[5] + 6 * scoreTemp[6]
-                    + 7 * scoreTemp[7] + 8 * scoreTemp[8] + 9 * scoreTemp[9]) / (float) sum;
-            System.out.println("score: " + score * 10); // Diem o day ****************************************************
-            return score * 10;
-        }
-
-        @Override
-        protected void onPostExecute(Float aFloat) {
-            tv_score.setText("Score: " + String.format("%.2f", aFloat));
-        }
-    }
-
-    public void Sleep(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (Exception e) {
         }
     }
 }

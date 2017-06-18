@@ -48,8 +48,6 @@ public class FavoriteFragment extends Fragment {
         //Init
         tv_num_song = (TextView) view.findViewById(R.id.fs_num_records) ;
         db = new DatabaseHelper(getContext());
-        List<FavoriteSong> listFS = null;
-        final List<KaraokeSong> listKS = new ArrayList<>();
         mAdapter = new KaraokeAdapter(getContext());
         recyclerView = (RecyclerView) view.findViewById(R.id.myfavorite_recycler_view);
 
@@ -58,11 +56,24 @@ public class FavoriteFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
+        //update Adapter
+        updateAdapterFS();
+
+        return view;
+    }
+
+    public void updateAdapterFS() {
         //get List FavoriteSong
-        listFS= db.get_AllFavoriteSong();
+        List<FavoriteSong> listFS = db.get_AllFavoriteSong();
+        final List<KaraokeSong> listKS = new ArrayList<>();
+
+        //if change
+        if ( listFS.size() == mAdapter.getItemCount() ) {
+            return;
+        }
 
         //service
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiService = ApiClient.getClient( getContext() ).create(ApiInterface.class);
         for ( FavoriteSong fs : listFS ) {
             Call<KaraokeSong> call = apiService.getKaraokeSong( fs.getKid() );
             call.enqueue(new Callback<KaraokeSong>() {
@@ -72,7 +83,6 @@ public class FavoriteFragment extends Fragment {
                         listKS.add( response.body() );
                         mAdapter.setKaraokeSongs(listKS);
                         mAdapter.notifyDataSetChanged();
-
                         tv_num_song.setText( listKS.size() + " Songs" );
                     }
                 }
@@ -83,8 +93,11 @@ public class FavoriteFragment extends Fragment {
                 }
             });
         }
+    }
 
-
-        return view;
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateAdapterFS();
     }
 }

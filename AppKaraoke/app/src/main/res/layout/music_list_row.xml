@@ -31,10 +31,11 @@
 
             <TextView
                 android:id="@+id/song_name"
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:text="here with me"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="22sp"
@@ -42,11 +43,12 @@
 
             <TextView
                 android:id="@+id/singer"
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/title"
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:text="Dido"
                 android:textColor="#FF6D7275" />
 

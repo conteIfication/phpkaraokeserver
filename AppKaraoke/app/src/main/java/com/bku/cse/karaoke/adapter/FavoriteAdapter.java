@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bku.cse.karaoke.R;
 import com.bku.cse.karaoke.controller.SelectModeKaraokeActivity;
+import com.bku.cse.karaoke.helper.BaseURLManager;
 import com.bku.cse.karaoke.model.KaraokeSong;
 import com.bku.cse.karaoke.rest.ApiClient;
 import com.bumptech.glide.Glide;
@@ -51,9 +52,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.MyView
         final KaraokeSong karaokeSong = karaokeSongs.get(position);
         holder.tv_singer.setText(karaokeSong.getSinger());
         holder.tv_songName.setText(karaokeSong.getName());
+        BaseURLManager baseURL = new BaseURLManager(_context);
 
         //LOAD Image
-        Glide.with(_context).load(ApiClient.BASE_URL + karaokeSong.getImage())
+        Glide.with(_context).load( baseURL.getBaseURL() + karaokeSong.getImage())
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

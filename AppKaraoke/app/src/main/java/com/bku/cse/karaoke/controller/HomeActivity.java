@@ -235,12 +235,13 @@ public class HomeActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CODE_SETTING:
-                //if theme of application is changed
+                finish();
+                startActivity(getIntent());
+                /*//if theme of application is changed
                 Boolean isChangedTheme = data.getBooleanExtra("isChangedTheme", false);
                 if (isChangedTheme) {
-                    finish();
-                    startActivity(getIntent());
-                }
+
+                }*/
                 break;
             case REQUEST_CODE_LOGIN:
                 if ( session.isLoggedIn() ) {

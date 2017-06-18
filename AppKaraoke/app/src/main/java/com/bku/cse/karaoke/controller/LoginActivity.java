@@ -120,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = et_password.getText().toString();
 
         // TODO: Implement your own authentication logic here
-        ApiInterface apiServer = ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiServer = ApiClient.getClient(this).create(ApiInterface.class);
         Call<MSGAuth> call = apiServer.postLogin(email, password);
         call.enqueue(new Callback<MSGAuth>() {
             @Override

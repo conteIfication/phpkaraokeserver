@@ -48,7 +48,7 @@ public class NewFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
 
         //Get data from Server Karaoke Song List
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiService = ApiClient.getClient( getContext() ).create(ApiInterface.class);
         Call<KSongList> call = apiService.getNewSong();
         call.enqueue(new Callback<KSongList>() {
             @Override

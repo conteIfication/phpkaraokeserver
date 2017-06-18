@@ -113,7 +113,7 @@ public class SignUpActivity extends AppCompatActivity {
         final String password = et_password.getText().toString();
 
         // TODO: Implement your own signup logic here.
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiService = ApiClient.getClient(this).create(ApiInterface.class);
         Call<MSGAuth> call = apiService.postRegister(name, email, password);
         call.enqueue(new Callback<MSGAuth>() {
             @Override

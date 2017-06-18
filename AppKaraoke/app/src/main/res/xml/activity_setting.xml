@@ -13,12 +13,19 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:layout="@layout/preferences_category"
+        android:title="Change Server">
+        <EditTextPreference
+            android:key="baseUrl"
+            android:textAppearance="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+            android:title="Change IP address" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:layout="@layout/preferences_category"
         android:title="About">
         <Preference
             android:title="Privacy Policy" />
         <Preference
             android:title="Version" />
     </PreferenceCategory>
-
 
 </PreferenceScreen>

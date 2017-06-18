@@ -2,6 +2,7 @@ package com.bku.cse.karaoke.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bku.cse.karaoke.R;
-import com.bku.cse.karaoke.controller.PlayMusicActivity;
+import com.bku.cse.karaoke.controller.PlayMActivity;
 import com.bku.cse.karaoke.helper.DatabaseHelper;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.model.KaraokeSong;
@@ -61,9 +62,17 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.MyViewHold
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final RecordedSong recordedSong = recordedSongs.get(position);
         SessionManager session = new SessionManager(_context);
+        final Bundle mBun = new Bundle();
+
+        mBun.putInt("kid", recordedSong.getKid());
+        mBun.putInt("score", recordedSong.getScore());
+        mBun.putString("path", recordedSong.getPath());
+        mBun.putString("record_type", recordedSong.getRecord_type());
+        mBun.putBoolean("is_shared", recordedSong.getIs_shared());
+        mBun.putString("up_time", recordedSong.getUp_time());
 
         //get KaraokeSong
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiService = ApiClient.getClient(_context).create(ApiInterface.class);
         final Call<KaraokeSong> call = apiService.getKaraokeSong( recordedSong.getKid() );
         call.enqueue(new Callback<KaraokeSong>() {
             @Override
@@ -71,6 +80,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.MyViewHold
                 if (response.isSuccessful()) {
                     //
                     holder.tv_songName.setText( response.body().getName() );
+                    mBun.putString("songname", response.body().getName() );
                 }
                 else {
                     Log.d("GetError", "get method fail");
@@ -113,18 +123,20 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.MyViewHold
                                 DatabaseHelper db = new DatabaseHelper(_context);
                                 db.delete_RecordedSong( recordedSong.getRsid() );
                                 deleteFile_(recordedSong.getPath());
+
                                 recordedSongs.remove(position);
                                 notifyDataSetChanged();
-                                db.closeDB();
                                 Toast.makeText(_context, "Delete", Toast.LENGTH_SHORT).show();
+
+                                db.closeDB();
                                 break;
                             case R.id.record_setting_share:
-                                Toast.makeText(_context, "Delete", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(_context, "Share", Toast.LENGTH_SHORT).show();
                                 break;
                             case R.id.record_setting_play:
-                                Intent intent = new Intent(_context, PlayMusicActivity.class);
-                                intent.putExtra("path", recordedSong.getPath());
-                                _context.startActivity( intent );
+                                Intent iP = new Intent(_context, PlayMActivity.class);
+                                iP.putExtras( mBun );
+                                _context.startActivity( iP );
                                 break;
                             default:break;
                         }

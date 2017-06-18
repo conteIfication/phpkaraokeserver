@@ -50,7 +50,9 @@
         <activity android:name=".controller.SettingActivity"
             android:parentActivityName=".controller.HomeActivity"
             android:noHistory="true"/>
-        <activity android:name=".controller.PlayMusicActivity"
+        <activity android:name=".controller.JustPlayActivity"
+            android:noHistory="true"/>
+        <activity android:name=".controller.PlayMActivity"
             android:noHistory="true"
             />
     </application>

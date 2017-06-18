@@ -35,4 +35,7 @@ public interface ApiInterface {
 
     @GET("karaoke-song/{kid}")
     Call<KaraokeSong> getKaraokeSong( @Path("kid") int kid  );
+
+    @GET("view-ks/{kid}")
+    Call<String> increaseView( @Path("kid") int kid );
 }

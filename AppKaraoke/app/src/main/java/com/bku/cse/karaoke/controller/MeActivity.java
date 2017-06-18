@@ -22,6 +22,7 @@ import com.bku.cse.karaoke.R;
 import com.bku.cse.karaoke.fragment.FavoriteFragment;
 import com.bku.cse.karaoke.fragment.MyRecordFragment;
 import com.bku.cse.karaoke.fragment.SharedRecordFragment;
+import com.bku.cse.karaoke.helper.BaseURLManager;
 import com.bku.cse.karaoke.helper.SessionManager;
 import com.bku.cse.karaoke.model.User;
 import com.bku.cse.karaoke.rest.ApiClient;
@@ -48,6 +49,7 @@ public class MeActivity extends AppCompatActivity {
     BottomBar bottomBar;
     TextView tv_name, tv_email;
     CircleImageView avatar;
+    BaseURLManager baseURL;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class MeActivity extends AppCompatActivity {
         tv_name = (TextView) findViewById(R.id.me_tv_name);
         tv_email = (TextView) findViewById(R.id.me_tv_email);
         avatar = (CircleImageView) findViewById(R.id.me_avatar);
+        baseURL =  new BaseURLManager(this);
 
         //set User Info
         setUserInfo();
@@ -102,7 +105,7 @@ public class MeActivity extends AppCompatActivity {
 
         tv_name.setText(user.getName());
         tv_email.setText(user.getEmail());
-        Glide.with(getApplicationContext()).load(ApiClient.BASE_URL + avatar_path)
+        Glide.with(getApplicationContext()).load(baseURL.getBaseURL() + avatar_path)
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
