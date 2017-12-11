@@ -14,19 +14,3 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::POST('login', 'PageController@login')->name('login');
-
-Route::post('logout', 'Auth\LoginController@logout')->name('logout');
-
-Route::post('register', 'PageController@register')->name('register');
-
-Route::get('get-all-song', 'PageController@getAllSong')->name('get_all_song');
-Route::get('get-hot-song', 'PageController@getHotSong')->name('get_hot_song');
-Route::get('get-new-song', 'PageController@getNewSong')->name('get_new_song');
-Route::get('karaoke-song/{id}', 'PageController@getKaraokeSong')->name('get_karaoke_song');
-Route::get('view-ks/{kid}', 'PageController@increaseView')->name('increase_view');
-
-Route::get('/test', 'PageController@show')->name('test');
-
-
