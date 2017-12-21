@@ -2,34 +2,169 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\BelongKsGenre;
 use App\Genre;
 use App\KaraokeSong;
-use App\User;
-use Illuminate\Http\Request;
+use App\RecordUserKs;
+
 use App\Http\Controllers\Controller;
+use App\SharedRecording;
+use Illuminate\Http\Request;
 
 class KaraokeSongController extends Controller
 {
+    public function getAll(Request $request) {
+        $sort = $request->input('sort');
+        $genreRequest = $request->input('genre'); //pop-hiphop-...
+        $genreRequestArray = explode("_", $genreRequest);
 
-     public function getAll() {
+        switch ($sort) {
+            case 'desc-time':
+                $datas = KaraokeSong::orderBy('created_at', 'desc')->get();
+                break;
+            case 'asc-time':
+                $datas = KaraokeSong::orderBy('created_at')->get();
+                break;
+            case 'desc-name':
+                $datas = KaraokeSong::orderBy('name', 'desc')->get();
+                break;
+            case 'asc-name':
+                $datas = KaraokeSong::orderBy('name')->get();
+                break;
+            case 'none':
+            default:
+                $datas = KaraokeSong::all();
+                break;
+        }
+        $res = array();
+        foreach ($datas as $data) {
+            if ( $genreRequest !== '' && $genreRequest !== "all" ) {
+                $genreText = '';
+                $isAdd = false;
+                foreach ( $data->genres as $genre ) {
+                    $genreText .= '&' . $genre->name;
 
-         $datas = KaraokeSong::all();
-         foreach ($datas as $data) {
-             $genreText = '';
-             foreach ( $data->genres as $genre ) {
-                 $genreText .= '&' . $genre->name;
-             }
-             $data->genre = substr($genreText, 1);
+                    foreach ($genreRequestArray as $item) {
+                        if ($item === $genre->name){
+                            $isAdd = true;
+                        }
+                    }
+                }
+                $data->genre = substr($genreText, 1);
 
-             $artistText = '';
-             foreach ( $data->artists as $artist ) {
-                 $artistText .= '&' . $artist->name;
-             }
-             $data->artist = substr($artistText, 1);
+                $artistText = '';
+                foreach ( $data->artists as $artist ) {
+                    $artistText .= '&' . $artist->name;
+                }
+                $data->artist = substr($artistText, 1);
 
+                if ($isAdd) {
+                    array_push($res, $data);
+                }
+            } else {
+                $genreText = '';
+                foreach ( $data->genres as $genre ) {
+                    $genreText .= '&' . $genre->name;
+                }
+                $data->genre = substr($genreText, 1);
+
+                $artistText = '';
+                foreach ( $data->artists as $artist ) {
+                    $artistText .= '&' . $artist->name;
+                }
+                $data->artist = substr($artistText, 1);
+                array_push($res, $data);
+            }
+        }
+        return $res;
+    }
+
+    public function getNew($num) {
+         if ($num == 0) {
+             $datas = KaraokeSong::orderBy('created_at', 'desc')->get();
+         }else if ($num > 0){
+             $datas = KaraokeSong::orderBy('created_at', 'desc')->take($num)->get();
          }
-         return $datas;
 
+
+        foreach ($datas as $data) {
+            $genreText = '';
+            foreach ( $data->genres as $genre ) {
+                $genreText .= '&' . $genre->name;
+            }
+            $data->genre = substr($genreText, 1);
+
+            $artistText = '';
+            foreach ( $data->artists as $artist ) {
+                $artistText .= '&' . $artist->name;
+            }
+            $data->artist = substr($artistText, 1);
+        }
+        return $datas;
+    }
+
+    public function getFeature($num) {
+        if ($num == 0) {
+            $datas = KaraokeSong::orderBy('view_no', 'desc')->get();
+        }else if ($num > 0){
+            $datas = KaraokeSong::orderBy('view_no', 'desc')->take($num)->get();
+        }
+
+        foreach ($datas as $data) {
+            $genreText = '';
+            foreach ( $data->genres as $genre ) {
+                $genreText .= '&' . $genre->name;
+            }
+            $data->genre = substr($genreText, 1);
+
+            $artistText = '';
+            foreach ( $data->artists as $artist ) {
+                $artistText .= '&' . $artist->name;
+            }
+            $data->artist = substr($artistText, 1);
+        }
+        return $datas;
+    }
+
+    public function upView(Request $request) {
+        $uid = \Auth::user()->getAttribute('id');
+        $ksid = $request->input('ksid');
+        //Update record_user_ks
+        $record = RecordUserKs::where('user_id', $uid)
+            ->where('kar_id', $ksid);
+
+        if ($record->count() == 0) {
+            $newRecord = new RecordUserKs();
+            $newRecord->user_id = $uid;
+            $newRecord->kar_id = $ksid;
+            $newRecord->count = 1;
+            $newRecord->save();
+        }else{
+            $count = $record->first()->count;
+            $record->update(['count' => $count + 1]);
+        }
+        //Update karaokesong view_no
+        $viewNo = KaraokeSong::where('id', $ksid)
+            ->first()->view_no;
+        KaraokeSong::where('id', $ksid)
+            ->update(['view_no' => $viewNo + 1]);
+
+        return 1;
+    }
+    public function getAllGenre() {
+        return Genre::all();
+    }
+    public function getOne($id) {
+        return KaraokeSong::find($id);
+    }
+    public function getRank($id) {
+        $datas = SharedRecording::where('kar_id', $id)
+            ->orderBy('view_no', 'desc')
+            ->take(10)
+            ->get();
+        foreach ($datas as $data) {
+            $data->user;
+            $data->karaoke;
+        }
+        return $datas;
     }
 }

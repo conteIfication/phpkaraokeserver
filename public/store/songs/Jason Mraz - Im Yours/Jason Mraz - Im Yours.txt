@@ -1,11 +1,11 @@
-#TITLE:I’m Yours
+#TITLE:I'm Yours
 #ARTIST:Jason Mraz
 #LANGUAGE:English
 #EDITION:[SC]-Songs
 #GENRE:Pop
 #YEAR:2008
-#MP3:Jason Mraz - I’m Yours.mp3
-#VIDEO:Jason Mraz - I’m Yours [VD#0].avi
+#MP3:Jason Mraz - I'm Yours.mp3
+#VIDEO:Jason Mraz - I'm Yours [VD#0].avi
 #BPM:302,04
 #GAP:18090
 : 0 3 1 We
