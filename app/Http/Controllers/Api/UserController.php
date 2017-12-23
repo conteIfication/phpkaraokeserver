@@ -47,7 +47,8 @@ class UserController extends Controller
         $uid = \Auth::user()->getAttribute('id');
         $datas = SharedRecording::where('user_id', $uid)->get();
         foreach ($datas as $data) {
-            $data->song = $data->karaoke;
+            $data->karaoke;
+            $data->user;
         }
         return $datas;
     }
