@@ -27,6 +27,7 @@ Route::middleware('auth:api')->group(function (){
     Route::get('songs/genre', 'Api\KaraokeSongController@getAllGenre');
     Route::get('songs/{id}', 'Api\KaraokeSongController@getOne');
     Route::get('songs/{id}/rank', 'Api\KaraokeSongController@getRank');
+    Route::post('songs/playlist', 'Api\KaraokeSongController@getPlaylistsOfSong');
 
     Route::get('user/recent', 'Api\UserController@getRecent');
     Route::post('user/recent/remove', 'Api\UserController@removeRecent');
@@ -36,6 +37,24 @@ Route::middleware('auth:api')->group(function (){
     Route::post('record/upload', 'Api\RecordController@uploadAudioRecord');
     Route::post('record/add', 'Api\RecordController@insertShareRecord');
     Route::get('record/popular/{num}', 'Api\RecordController@getPopular');
+    Route::post('record/islike', 'Api\RecordController@isLike');
+    Route::post('record/like', 'Api\RecordController@like');
+    Route::post('record/comment', 'Api\RecordController@comment');
+    Route::get('record/{id}/comments', 'Api\RecordController@getComments');
+
+    Route::post('playlist/add', 'Api\PlaylistController@add');
+    Route::post('playlist/save', 'Api\PlaylistController@save');
+    Route::post('playlist/delete', 'Api\PlaylistController@delete');
+    Route::get('playlist/all', 'Api\PlaylistController@getAll');
+    Route::post('playlist/songs', 'Api\PlaylistController@getSongsInPlaylist');
+
+    Route::post('playlist/delsong', 'Api\PlaylistController@deleteSongInPlaylist');
+    Route::post('playlist/addsong', 'Api\PlaylistController@addSongToPlaylist');
+
+    Route::get('newfeed/{num}', 'Api\NewFeedController@getNewFeeds');
+
+    Route::get('relation/{other_id}', 'Api\RelationController@getRelation');
+    Route::post('relation/request', 'Api\RelationController@request');
 });
 
 

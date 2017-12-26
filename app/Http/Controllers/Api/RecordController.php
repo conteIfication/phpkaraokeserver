@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\CommentTb;
+use App\LikeUserSr;
 use App\SharedRecord;
 use App\SharedRecording;
 use Illuminate\Http\Request;
@@ -48,6 +50,61 @@ class RecordController extends Controller
             }
         }
         return $datas;
+    }
 
+    public function isLike(Request $request) {
+        $srid = $request->input('sr_id');
+        $uid = \Auth::user()->getAttribute('id');
+
+        $like = LikeUserSr::where('user_id', $uid)->where('sr_id', $srid)->first();
+        if ( $like != null ){
+            return 1;
+        }
+        return 0;
+    }
+    public function like(Request $request) {
+        $srid = $request->input('sr_id');
+        $uid = \Auth::user()->getAttribute('id');
+
+        $like = LikeUserSr::where('user_id', $uid)->where('sr_id', $srid)->first();
+        if ( $like != null ){
+            //remove like
+            LikeUserSr::where('user_id', $uid)->where('sr_id', $srid)->delete();
+            return 0;
+        }
+        //add like
+        $newLike = new LikeUserSr();
+        $newLike->sr_id = $srid;
+        $newLike->user_id = $uid;
+        if ($newLike->save()){
+            return 1;
+        }
+        return 0;
+    }
+
+    public function comment(Request $request) {
+        $srid = $request->input('sr_id');
+        $uid = \Auth::user()->getAttribute('id');
+        $content = $request->input('content');
+
+        $comment = new CommentTb();
+        $comment->user_id = $uid;
+        $comment->sr_id = $srid;
+        $comment->content = $content;
+
+        if ($comment->save()) {
+            $newComment = CommentTb::find($comment->id);
+            $newComment->user;
+
+            return $newComment;
+        }
+        return null;
+    }
+    public function getComments($srid) {
+        $datas = CommentTb::where('sr_id', $srid)->get();
+        foreach ($datas as $data) {
+            $data->user;
+        }
+        return $datas;
     }
 }

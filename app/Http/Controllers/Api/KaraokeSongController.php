@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Genre;
+use App\HasPlaylistKs;
 use App\KaraokeSong;
 use App\RecordUserKs;
 
@@ -166,5 +167,19 @@ class KaraokeSongController extends Controller
             $data->karaoke;
         }
         return $datas;
+    }
+
+    public function getPlaylistsOfSong(Request $request) {
+        $ksid = $request->input('kar_id');
+        $uid = \Auth::user()->getAttribute('id');
+
+        $result = array();
+        $datas = HasPlaylistKs::where('kar_id', $ksid)->get();
+        foreach ($datas as $data) {
+            if ($data->playlist->user_id == $uid){
+                array_push( $result, $data );
+            }
+        }
+        return $result;
     }
 }
