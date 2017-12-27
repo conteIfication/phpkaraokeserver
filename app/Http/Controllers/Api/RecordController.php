@@ -15,8 +15,7 @@ class RecordController extends Controller
     //
     public function uploadAudioRecord(Request $request)
     {
-
-        $path = $request->file('myfile')->store('public/audio-records');
+        $path = $request->file('myfile')->store('public/records');
         return $path;
     }
     public function insertShareRecord(Request $request) {
@@ -145,5 +144,16 @@ class RecordController extends Controller
         }
         return 0;
 
+    }
+    public function upViewNo(Request $request) {
+        $srId = $request->input('sr_id');
+        $uid = \Auth::user()->getAttribute('id');
+
+        $sr = SharedRecording::where('id', $srId)->first();
+
+        if (SharedRecording::where('id', $srId)->update([ 'view_no' => ($sr->view_no + 1) ])){
+            return 1;
+        }
+        return 0;
     }
 }

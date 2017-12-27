@@ -33,7 +33,7 @@ Route::middleware('auth:api')->group(function (){
     Route::get('user/recent', 'Api\UserController@getRecent');
     Route::post('user/recent/remove', 'Api\UserController@removeRecent');
     Route::get('user', 'Api\UserController@getUser');
-    Route::get('user/shared-records', 'Api\UserController@getSharedRecord');
+    Route::get('user/shared-records/{num}', 'Api\UserController@getSharedRecord');
 
     Route::post('record/upload', 'Api\RecordController@uploadAudioRecord');
     Route::post('record/add', 'Api\RecordController@insertShareRecord');
@@ -43,6 +43,7 @@ Route::middleware('auth:api')->group(function (){
     Route::post('record/comment', 'Api\RecordController@comment');
     Route::get('record/{id}/comments', 'Api\RecordController@getComments');
     Route::post('record/report', 'Api\RecordController@reportSharedRecord');
+    Route::post('record/upview', 'Api\RecordController@upViewNo');
 
     Route::post('playlist/add', 'Api\PlaylistController@add');
     Route::post('playlist/save', 'Api\PlaylistController@save');
@@ -59,6 +60,13 @@ Route::middleware('auth:api')->group(function (){
     Route::post('relation/request', 'Api\RelationController@request');
 
     Route::get('announcement/{num}/{sort}', 'Api\AnnouncementController@getAnn');
+
+    Route::post('photo/upload', 'Api\PhotoController@upload');
+    Route::post('photo/add', 'Api\PhotoController@add');
+    Route::get('photo/all', 'Api\PhotoController@all');
+    Route::post('photo/delete', 'Api\PhotoController@delete');
+
+    Route::post('user/update-avatar', 'Api\UserController@updateAvatar');
 });
 
 
