@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\CommentTb;
 use App\LikeUserSr;
+use App\ReportUserSr;
 use App\SharedRecord;
 use App\SharedRecording;
 use Illuminate\Http\Request;
@@ -41,12 +42,16 @@ class RecordController extends Controller
             foreach ($datas as $data) {
                 $data->karaoke;
                 $data->user;
+                $data->num_likes = LikeUserSr::where('sr_id', $data->id )->get()->count();
+                $data->num_comments = CommentTb::where('sr_id', $data->id )->get()->count();
             }
         }else {
             $datas = SharedRecording::orderBy('view_no', 'desc')->take($num)->get();
             foreach ($datas as $data) {
                 $data->karaoke;
                 $data->user;
+                $data->num_likes = LikeUserSr::where('sr_id', $data->id )->get()->count();
+                $data->num_comments = CommentTb::where('sr_id', $data->id )->get()->count();
             }
         }
         return $datas;
@@ -106,5 +111,39 @@ class RecordController extends Controller
             $data->user;
         }
         return $datas;
+    }
+    public function reportSharedRecord(Request $request){
+        /* 0: fail
+           1: success
+           2: exist
+           3: update
+         * */
+        $srid = $request->input('sr_id');
+        $uid = \Auth::user()->getAttribute('id');
+        $subject = $request->input('subject');
+
+        $report = ReportUserSr::where('sr_id', $srid)->where('user_id', $uid)->first();
+        if ($report != null){
+            if ($report->subject == $subject){
+                return 2;
+            }
+
+            if (ReportUserSr::where('sr_id', $srid)
+                ->where('user_id', $uid)
+                ->update([ 'subject' => $subject ])){
+                return 3;
+            }else {
+                return 0;
+            }
+        }
+        $newReport = new ReportUserSr();
+        $newReport->sr_id = $srid;
+        $newReport->user_id = $uid;
+        $newReport->subject = $subject;
+        if ($newReport->save()){
+            return 1;
+        }
+        return 0;
+
     }
 }

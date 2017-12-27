@@ -28,6 +28,7 @@ Route::middleware('auth:api')->group(function (){
     Route::get('songs/{id}', 'Api\KaraokeSongController@getOne');
     Route::get('songs/{id}/rank', 'Api\KaraokeSongController@getRank');
     Route::post('songs/playlist', 'Api\KaraokeSongController@getPlaylistsOfSong');
+    Route::post('songs/report', 'Api\KaraokeSongController@reportKaraokeSong');
 
     Route::get('user/recent', 'Api\UserController@getRecent');
     Route::post('user/recent/remove', 'Api\UserController@removeRecent');
@@ -41,6 +42,7 @@ Route::middleware('auth:api')->group(function (){
     Route::post('record/like', 'Api\RecordController@like');
     Route::post('record/comment', 'Api\RecordController@comment');
     Route::get('record/{id}/comments', 'Api\RecordController@getComments');
+    Route::post('record/report', 'Api\RecordController@reportSharedRecord');
 
     Route::post('playlist/add', 'Api\PlaylistController@add');
     Route::post('playlist/save', 'Api\PlaylistController@save');
@@ -55,6 +57,8 @@ Route::middleware('auth:api')->group(function (){
 
     Route::get('relation/{other_id}', 'Api\RelationController@getRelation');
     Route::post('relation/request', 'Api\RelationController@request');
+
+    Route::get('announcement/{num}/{sort}', 'Api\AnnouncementController@getAnn');
 });
 
 

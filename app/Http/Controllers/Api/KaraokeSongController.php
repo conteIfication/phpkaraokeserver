@@ -8,6 +8,7 @@ use App\KaraokeSong;
 use App\RecordUserKs;
 
 use App\Http\Controllers\Controller;
+use App\ReportUserKs;
 use App\SharedRecording;
 use Illuminate\Http\Request;
 
@@ -181,5 +182,38 @@ class KaraokeSongController extends Controller
             }
         }
         return $result;
+    }
+    public function reportKaraokeSong(Request $request) {
+        /* 0: fail
+           1: success
+           2: exist
+           3: update
+         * */
+        $ksid = $request->input('kar_id');
+        $uid = \Auth::user()->getAttribute('id');
+        $subject = $request->input('subject');
+
+        $report = ReportUserKs::where('kar_id', $ksid)->where('user_id', $uid)->first();
+        if ($report != null){
+            if ($report->subject == $subject){
+                return 2;
+            }
+
+            if (ReportUserKs::where('kar_id', $ksid)
+                ->where('user_id', $uid)
+                ->update([ 'subject' => $subject ])){
+                return 3;
+            }else {
+                return 0;
+            }
+        }
+        $newReport = new ReportUserKs();
+        $newReport->kar_id = $ksid;
+        $newReport->user_id = $uid;
+        $newReport->subject = $subject;
+        if ($newReport->save()){
+            return 1;
+        }
+        return 0;
     }
 }
