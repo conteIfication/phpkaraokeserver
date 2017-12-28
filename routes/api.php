@@ -30,7 +30,7 @@ Route::middleware('auth:api')->group(function (){
     Route::post('songs/playlist', 'Api\KaraokeSongController@getPlaylistsOfSong');
     Route::post('songs/report', 'Api\KaraokeSongController@reportKaraokeSong');
 
-    Route::get('user/recent', 'Api\UserController@getRecent');
+    Route::get('user/recent', 'Api\UserController@getRecentKaraokeSong');
     Route::post('user/recent/remove', 'Api\UserController@removeRecent');
     Route::get('user', 'Api\UserController@getUser');
     Route::get('user/shared-records/{num}', 'Api\UserController@getSharedRecord');
@@ -56,8 +56,9 @@ Route::middleware('auth:api')->group(function (){
 
     Route::get('newfeed/{num}', 'Api\NewFeedController@getNewFeeds');
 
-    Route::get('relation/{other_id}', 'Api\RelationController@getRelation');
+    Route::get('relation/{other_id}', 'Api\RelationController@getRelation')->where('other_id', '[0-9]+');;
     Route::post('relation/request', 'Api\RelationController@request');
+    Route::get('relation/all', 'Api\RelationController@all');
 
     Route::get('announcement/{num}/{sort}', 'Api\AnnouncementController@getAnn');
 

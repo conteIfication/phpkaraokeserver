@@ -24,11 +24,11 @@ class RelationController extends Controller
             return 0;
 
         $relation = Relation::where([
-            [ 'uid', $uid ],
-            [ 'other_uid', $otherId ]
+            [ 'user_id', $uid ],
+            [ 'other_id', $otherId ]
         ])->orWhere([
-            [ 'uid', $otherId ],
-            [ 'other_uid', $uid ]
+            [ 'user_id', $otherId ],
+            [ 'other_id', $uid ]
         ])->first();
         if ($relation != null){
             if ($relation->status == 'request')
@@ -46,20 +46,34 @@ class RelationController extends Controller
 
         //check
         $relation = Relation::where([
-            [ 'uid', $uid ],
-            [ 'other_uid', $otherId ]
+            [ 'user_id', $uid ],
+            [ 'other_id', $otherId ]
         ])->orWhere([
-            [ 'uid', $otherId ],
-            [ 'other_uid', $uid ]
+            [ 'user_id', $otherId ],
+            [ 'other_id', $uid ]
         ])->first();
         if ($relation == null){
             $relation = new Relation();
-            $relation->uid = $uid;
+            $relation->user_id = $uid;
             $relation->other_id = $otherId;
             if ($relation->save()){
                 return 1;
             }
         }
         return 0;
+    }
+
+    public function all() {
+        $uid = \Auth::user()->getAttribute('id');
+
+        $datas =  Relation::where('user_id', $uid)->orWhere('other_id', $uid)->get();
+        foreach ($datas as $data){
+            if ($data->user->id == $uid){
+                $data->other = $data->other_user;
+            }else {
+                $data->other = $data->user;
+            }
+        }
+        return $datas;
     }
 }

@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 class UserController extends Controller
 {
     //
-    public function getRecent() {
+    public function getRecentKaraokeSong() {
         $uid = \Auth::user()->getAttribute('id');
 
         $records =  RecordUserKs::where('user_id', $uid)->orderBy('updated_at', 'desc')->get();
