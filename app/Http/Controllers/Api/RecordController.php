@@ -156,4 +156,12 @@ class RecordController extends Controller
         }
         return 0;
     }
+    public function getSr($id) {
+        $data = SharedRecording::find($id);
+        $data->user;
+        $data->karaoke;
+        $data->num_likes = LikeUserSr::where('sr_id', $id )->get()->count();
+        $data->num_comments = CommentTb::where('sr_id', $id )->get()->count();
+        return $data;
+    }
 }

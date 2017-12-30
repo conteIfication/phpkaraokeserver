@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Announcement;
 use App\Relation;
+use App\ToAnnUser;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -57,6 +60,19 @@ class RelationController extends Controller
             $relation->user_id = $uid;
             $relation->other_id = $otherId;
             if ($relation->save()){
+
+                //announcement
+                $ann = new Announcement();
+                $ann->content =  User::find($uid)->name . ' has sent a friend request for '
+                    . User::find($otherId)->name;
+                $ann->admin_id = 3;
+                if ($ann->save()){
+                    $toAnnUser = new ToAnnUser();
+                    $toAnnUser->ann_id = $ann->id;
+                    $toAnnUser->user_id = $otherId;
+                    $toAnnUser-save();
+                }
+
                 return 1;
             }
         }

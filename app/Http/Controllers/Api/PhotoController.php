@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Photo;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
@@ -31,6 +33,16 @@ class PhotoController extends Controller
     }
     public function delete(Request $request){
         $photoId = $request->input('photo_id');
+
+        $photo = Photo::find($photoId);
+
+        $users = User::where('avatar', $photo->path)->get();
+
+        foreach ($users as $user) {
+            User::where('id', $user->id)->update([ 'avatar' => null ]);
+        }
+        Storage::disk('public')->delete( 'photos/' . $photo->path );
+
         if (Photo::where('id', $photoId)->delete()){
             return 1;
         }

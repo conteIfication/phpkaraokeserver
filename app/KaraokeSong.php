@@ -12,7 +12,7 @@ class KaraokeSong extends Model
     protected $fillable = [
 
     ];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function genres() {
         return $this->belongsToMany('App\Genre', 'belong_ks_genre', 'kar_id', 'genre_id');

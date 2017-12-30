@@ -29,6 +29,8 @@ Route::middleware('auth:api')->group(function (){
     Route::get('songs/{id}/rank', 'Api\KaraokeSongController@getRank');
     Route::post('songs/playlist', 'Api\KaraokeSongController@getPlaylistsOfSong');
     Route::post('songs/report', 'Api\KaraokeSongController@reportKaraokeSong');
+    Route::get('songs/recommend/{num}', 'Api\KaraokeSongController@getRecommend');
+    Route::post('songs/notlike', 'Api\KaraokeSongController@sendNotLike');
 
     Route::get('user/recent', 'Api\UserController@getRecentKaraokeSong');
     Route::post('user/recent/remove', 'Api\UserController@removeRecent');
@@ -44,6 +46,7 @@ Route::middleware('auth:api')->group(function (){
     Route::get('record/{id}/comments', 'Api\RecordController@getComments');
     Route::post('record/report', 'Api\RecordController@reportSharedRecord');
     Route::post('record/upview', 'Api\RecordController@upViewNo');
+    Route::get('record/{id}', 'Api\RecordController@getSr')->where('id', '[0-9]+');
 
     Route::post('playlist/add', 'Api\PlaylistController@add');
     Route::post('playlist/save', 'Api\PlaylistController@save');
