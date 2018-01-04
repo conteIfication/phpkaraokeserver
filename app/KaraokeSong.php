@@ -10,7 +10,7 @@ class KaraokeSong extends Model
 
     protected $table = 'karaokesong';
     protected $fillable = [
-
+        'name', 'beat', 'lyric', 'image', 'year'
     ];
     public $timestamps = true;
 
