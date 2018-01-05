@@ -1,7 +1,6 @@
 @extends('layouts.admin-app')
 
 @section('content')
-
     <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
         <div class="row">
             <ol class="breadcrumb">
@@ -33,101 +32,6 @@
                                 </div>
                             </div>
                             <img src="../../assets/image-resources/blurred-bg/blurred-bg-13.jpg" alt="">
-                        </div>
-                        <div class="panel-content pad15A bg-white radius-bottom-all-4">
-                            <div class="clear profile-box">
-                                <ul class="nav nav-pills nav-justified">
-                                    <li><a href="#" class="btn btn-sm bg-google"><span class="glyph-icon icon-separator"><em class="fa fa-facebook-square"></em></span> <span class="button-content">Google+</span></a></li>
-                                    <li><a href="#" class="btn btn-sm bg-facebook"><span class="glyph-icon icon-separator"><i class="fa fa-facebook-square"></i></span> <span class="button-content">Facebook</span></a></li>
-                                    <li><a href="#" class="btn btn-sm bg-twitter"><span class="glyph-icon icon-separator"><i class="fa fa-facebook-square"></i></span> <span class="button-content">Twitter</span></a></li>
-                                </ul>
-                            </div>
-                            <div class="mrg15T mrg15B"></div>
-                            <blockquote class="font-gray">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-                                <small>Programmer at <cite title="Delight">Delight</cite></small>
-                            </blockquote>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-box mrg15B">
-                    <h3 class="content-box-header clearfix">
-                        Friends online
-                        <div class="font-size-11 float-right"><a href="#" title=""><i class="glyph-icon mrg5R opacity-hover icon-plus"></i></a> <a href="#" title=""><i class="glyph-icon opacity-hover icon-cog"></i></a></div>
-                    </h3>
-                    <div class="content-box-wrapper text-center clearfix">
-                        <div class="status-badge mrg10A">
-                            <img class="img-circle" width="40" src="../../assets/image-resources/people/testimonial1.jpg" alt="">
-                            <div class="small-badge bg-red"></div>
-                        </div>
-                        <div class="status-badge mrg10A">
-                            <img class="img-circle" width="40" src="../../assets/image-resources/people/testimonial2.jpg" alt="">
-                            <div class="small-badge bg-orange"></div>
-                        </div>
-                        <div class="status-badge mrg10A">
-                            <img class="img-circle" width="40" src="../../assets/image-resources/people/testimonial3.jpg" alt="">
-                            <div class="small-badge bg-red"></div>
-                        </div>
-                        <div class="status-badge mrg10A">
-                            <img class="img-circle" width="40" src="../../assets/image-resources/people/testimonial4.jpg" alt="">
-                            <div class="small-badge bg-green"></div>
-                        </div>
-                        <div class="status-badge mrg10A">
-                            <img class="img-circle" width="40" src="../../assets/image-resources/people/testimonial5.jpg" alt="">
-                            <div class="small-badge bg-orange"></div>
-                        </div>
-                        <div class="status-badge mrg10A">
-                            <img class="img-circle" width="40" src="../../assets/image-resources/people/testimonial6.jpg" alt="">
-                            <div class="small-badge bg-red"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-box mrg15B">
-                    <h3 class="content-box-header clearfix">
-                        Recent activity
-                        <div class="font-size-11 float-right"><a href="#" title=""><i class="glyph-icon mrg5R opacity-hover icon-plus"></i></a> <a href="#" title=""><i class="glyph-icon opacity-hover icon-cog"></i></a></div>
-                    </h3>
-                    <div class="content-box-wrapper text-center clearfix">
-                        <div class="timeline-box timeline-box-right">
-                            <div class="tl-row">
-                                <div class="tl-item">
-                                    <div class="tl-icon bg-yellow"><i class="glyph-icon icon-eyedropper"></i></div>
-                                    <div class="popover left">
-                                        <div class="arrow"></div>
-                                        <div class="popover-content">
-                                            <div class="tl-label bs-label label-success">Meeting</div>
-                                            <p class="tl-content">Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.</p>
-                                            <div class="tl-time"><i class="glyph-icon icon-clock-o"></i> a few seconds ago</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tl-row">
-                                <div class="tl-item">
-                                    <div class="tl-icon bg-blue"><i class="glyph-icon icon-line-chart"></i></div>
-                                    <div class="popover left">
-                                        <div class="arrow"></div>
-                                        <div class="popover-content">
-                                            <div class="tl-label bs-label label-danger">Audio</div>
-                                            <p class="tl-content">Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.</p>
-                                            <div class="tl-time"><i class="glyph-icon icon-clock-o"></i> a few seconds ago</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tl-row">
-                                <div class="tl-item">
-                                    <div class="tl-icon bg-blue"><i class="glyph-icon icon-cab"></i></div>
-                                    <div class="popover left">
-                                        <div class="arrow"></div>
-                                        <div class="popover-content">
-                                            <div class="tl-label bs-label label-warning">Video</div>
-                                            <p class="tl-content">Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.</p>
-                                            <div class="tl-time"><i class="glyph-icon icon-clock-o"></i> a few seconds ago</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -432,23 +336,15 @@
                                     <div class="col-sm-6"><textarea name="" rows="3" class="form-control textarea-autosize" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 78px;"></textarea></div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Profile Picture:</label>
-                                    <div class="col-sm-6">
-                                        <div class="fileinput fileinput-new" data-provides="fileinput">
-                                            <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px"></div>
-                                            <div><span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span> <span class="fileinput-exists">Change</span> <input type="file" name="..."></span> <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a></div>
-                                        </div>
-                                    </div>
+                                    <label class="col-sm-3 control-label"></label>
+                                    <div class="col-sm-6"><button class="btn btn-info">Save</button></div>
                                 </div>
                             </form>
-                            <div class="col-xs-offset-2 button-pane mrg20T"><button class="btn btn-info">Save</button> <button class="btn btn-link font-gray-dark">Cancel</button></div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!--/.row-->
+            <!--/.row-->
         </div>
-        <!--/.row-->
-        <!--/.row-->
-    </div>
-
 @endsection

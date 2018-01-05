@@ -33,6 +33,8 @@ Route::middleware('auth:api')->group(function (){
     Route::post('songs/notlike', 'Api\KaraokeSongController@sendNotLike');
     Route::post('songs/search', 'Api\KaraokeSongController@searchKs');
 
+    Route::post('users/search', 'Api\UserController@findFriends');
+
     Route::get('user/recent', 'Api\UserController@getRecentKaraokeSong');
     Route::post('user/recent/remove', 'Api\UserController@removeRecent');
     Route::get('user', 'Api\UserController@getUser');

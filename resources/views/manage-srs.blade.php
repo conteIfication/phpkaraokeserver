@@ -252,7 +252,7 @@
 
                 if (data.karaoke.image != null){
                     var folderPath = data.karaoke.beat.substring(0, data.karaoke.beat.length - 4);
-                    $('#sr_cover').attr('src', '/store/songs/' + folderPath + '/' + data.karaoke.image);
+                    $('#sr_cover').attr('src', '/storage/songs/' + folderPath + '/' + data.karaoke.image);
                 }else {
                     $('#sr_cover').removeAttr('src');
                 }

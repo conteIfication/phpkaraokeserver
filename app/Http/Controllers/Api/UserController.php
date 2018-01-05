@@ -67,4 +67,9 @@ class UserController extends Controller
 
         return 0;
     }
+
+    public function findFriends(Request $request) {
+        $name = $request->input('name');
+        return User::where('name', 'like', '%'.$name.'%')->get();
+    }
 }

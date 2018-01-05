@@ -242,9 +242,7 @@ class KaraokeSongController extends Controller
     }
     public function getRecommend($num) {
         $uid = \Auth::user()->getAttribute('id');
-        $recent_ks = RecordUserKs::where('user_id', $uid)->where('count', '>', 0)
-            ->orderBy('updated_at', 'desc')->get();
-
+        $recent_ks = RecordUserKs::where('user_id', $uid)->orderBy('updated_at', 'desc')->get();
         if ( $recent_ks->count() < 5 ){
             //content-based filter
             //get feature songs
@@ -332,7 +330,8 @@ class KaraokeSongController extends Controller
             $arr_user_ids = array();
             $users = User::where('id', '<>', $uid)->get();
             foreach ($users as $user) {
-                $count = RecordUserKs::where('user_id', $user->id)->whereIn('kar_id', $arr_recent_songs)->count();
+                $count = RecordUserKs::where('user_id', $user->id)
+                    ->whereIn('kar_id', $arr_recent_songs)->count();
                 if ($count == count($arr_recent_songs)){
                     array_push($arr_user_ids, $user->id);
                 }
@@ -395,5 +394,20 @@ class KaraokeSongController extends Controller
     public function searchKs(Request $request) {
         $name = $request->input('name');
 
+        $datas = KaraokeSong::where('name', 'like', '%'.$name.'%')->get();
+        foreach ($datas as $data){
+            $genreText = '';
+            foreach ( $data->genres as $genre ) {
+                $genreText .= '&' . $genre->name;
+            }
+            $data->genre = substr($genreText, 1);
+
+            $artistText = '';
+            foreach ( $data->artists as $artist ) {
+                $artistText .= '&' . $artist->name;
+            }
+            $data->artist = substr($artistText, 1);
+        }
+        return $datas;
     }
 }
