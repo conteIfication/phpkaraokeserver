@@ -392,4 +392,8 @@ class KaraokeSongController extends Controller
         }
         return 1;
     }
+    public function searchKs(Request $request) {
+        $name = $request->input('name');
+
+    }
 }
