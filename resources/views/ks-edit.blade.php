@@ -26,8 +26,9 @@
                     <div class="panel-heading clearfix">Edit</div>
                     <div class="panel-body">
 
-                        <form id="formUploadKs" class="form-horizontal row-border"
-                              enctype="multipart/form-data" method="post" action="{{ route('admin.manage.kss.save-edit', ['id' => $ks->id]) }}">
+                        <form id="formEditKs" class="form-horizontal row-border"
+                              enctype="multipart/form-data" method="post"
+                              action="{{ route('admin.manage.kss.save-edit', ['id' => $ks->id]) }}">
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Song name</label>
                                 <div class="col-md-10">
@@ -36,25 +37,41 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Genre</label>
-                                <div class="col-xs-3">
-                                    <select name="ks_genre" id="ks_genre" class="form-control">
-                                        @foreach($genres as $genre)
-                                            <option value="{{ $genre->id }}">{{ $genre->name }}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="col-xs-7">
+                                    @foreach($genres as $genre)
+                                        <input type="checkbox" value="{{ $genre->id }}"
+                                               id="cb_genre_{{ $genre->id }}"  name="cb_genres[]"
+                                        @foreach($ks->genres as $ks_genre)
+                                            @if($ks_genre->id == $genre->id)
+                                                checked
+                                            @endif
+                                        @endforeach>
+                                        <label for="cb_genre_{{ $genre->id }}">{{ $genre->name }}</label>
+                                    @endforeach
                                 </div>
-                                <div class="col-xs-3"><button class="btn btn-default"><em class="fa fa-plus"></em></button></div>
+                                <div class="col-xs-3">
+                                    <button class="btn btn-default" type="button"
+                                            data-toggle="modal" data-target="#md_add_genre">
+                                        <em class="fa fa-plus"></em></button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Artist</label>
-                                <div class="col-xs-3">
-                                    <select name="ks_artist" id="ks_artist" class="form-control">
-                                        @foreach($artists as $artist)
-                                            <option value="{{ $artist->id }}">{{ $artist->name }}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="col-xs-7">
+                                    @foreach($artists as $artist)
+                                        <input type="checkbox" value="{{ $artist->id }}"
+                                               id="cb_artist_{{ $artist->id }}" name="cb_artists[]"
+                                               @foreach($ks->artists as $ks_artist)
+                                               @if($ks_artist->id == $artist->id)
+                                               checked
+                                                @endif
+                                                @endforeach>
+                                        <label for="cb_artist_{{ $artist->id }}">{{ $artist->name }}</label>
+                                    @endforeach
                                 </div>
-                                <div class="col-xs-3"><button class="btn btn-default"><em class="fa fa-plus"></em></button></div>
+                                <div class="col-xs-3">
+                                    <button type="button" class="btn btn-default"
+                                            data-toggle="modal" data-target="#md_add_artist"><em class="fa fa-plus"></em></button></div>
                             </div>
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Year</label>
@@ -101,6 +118,76 @@
             </div>
         </div>
     </div>
+    <!-- Modal Add Genre-->
+    <div id="md_add_genre" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add genre</h4>
+                </div>
+                <div class="modal-body" style="display: -webkit-box">
+                    <form id="formAddGenre" class="form-horizontal row-border"
+                          method="post" action="{{ route('admin.manage.genre.add') }}">
+                        {{ csrf_field() }}
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Genre name</label>
+                            <div class="col-md-8">
+                                <input type="text" name="genre_name" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success"
+                            data-dismiss="modal" id="btn_add_genre"
+                            onclick="addGenre()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Artist-->
+    <div id="md_add_artist" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add artist</h4>
+                </div>
+                <div class="modal-body" style="display: -webkit-box">
+                    <form id="formAddArtist" class="form-horizontal row-border"
+                          method="post" action="{{ route('admin.manage.artist.add') }}">
+                        {{ csrf_field() }}
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Artist name</label>
+                            <div class="col-md-8">
+                                <input type="text" name="artist_name" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success"
+                            data-dismiss="modal" id="btn_add_artist"
+                            onclick="addArtist()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addGenre() {
+            $('#formAddGenre').submit();
+        }
+        function addArtist() {
+            $('#formAddArtist').submit();
+        }
+    </script>
 
     <script>
 

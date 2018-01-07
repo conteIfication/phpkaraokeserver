@@ -38,11 +38,16 @@ Route::prefix('/admin')->group(function (){
     Route::get('/manage/kss/{id}/delete', 'ManageKssController@deleteKs')->name('admin.manage.kss.delete');
     Route::get('/manage/kss/{id}/edit', 'ManageKssController@editKs')->name('admin.manage.kss.edit');
     Route::post('/manage/kss/{id}/edit', 'ManageKssController@saveEditKs')->name('admin.manage.kss.save-edit');
-
     Route::get('/manage/kss/upload', 'ManageKssController@showUploadForm')->name('admin.manage.kss.upload');
     Route::post('/manage/kss/upload', 'ManageKssController@uploadKs')->name('admin.manage.kss.upload.submit');
 
+    Route::post('/manage/genres/add', 'ManageKssController@addGenre')->name('admin.manage.genre.add');
+    Route::post('/manage/artist/add', 'ManageKssController@addArtist')->name('admin.manage.artist.add');
+
+    Route::get('/manage/reports', 'ManageReportController@index')->name('admin.manage.reports');
+
     Route::get('/profile', 'AdminProfileController@profile')->name('admin.profile');
+    Route::post('/profile/save', 'AdminProfileController@save')->name('admin.profile.save');
 });
 
 Route::get('/test', function(){

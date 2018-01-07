@@ -68,25 +68,42 @@ class ManageKssController extends Controller
     }
 
     public function uploadKs(Request $request) {
+        $cb_artists = $request->input('cb_artists');
+        $cb_genres = $request->input('cb_genres');
+        $name = $request->input('ks_name');
+        if ($name == ''
+            || $cb_artists == null || count($cb_artists) == 0
+            || $cb_genres == null || count($cb_genres) == 0){
+            return 0;
+        }
+        /*if ($request->hasFile('beat')){
+            echo 'beat';
+        }
+        if ($request->hasFile('lyric')){
+            echo 'lyric';
+        }
+        if ($request->hasFile('image')){
+            echo 'image';
+        }
+        return 1;*/
 
         if($request->hasFile('beat')
             && $request->hasFile('lyric')
             && $request->hasFile('image')){
 
-            if ($request->ks_name == '' || !is_numeric($request->ks_year)){
-                return 0;
+            $genres = Genre::whereIn('id', $cb_genres)->get();
+            $artists = Artist::whereIn('id', $cb_genres)->get();
+
+            $folderName = $name . ' - ';
+            foreach ($artists as $artist){
+                $folderName .= $artist->name . '&';
             }
-
-            $name = $request->ks_name;
-            $genre = Genre::find($request->ks_genre);
-            $artist = Artist::find($request->ks_artist);
-
-            $folderName = $name . ' - ' . $artist->name;
+            $folderName = substr($folderName, 0, strlen($folderName) - 1);
 
             //save file
-            $beat = $request->file('beat')->storeAs('public/songs/' . $folderName, $folderName . '.mp3' );
             $lyric = $request->file('lyric')->storeAs('public/songs/' . $folderName, $folderName . '.txt' );
-            $image = $request->file('lyric')->storeAs('public/songs/' . $folderName, $folderName . '.jpg' );
+            $image = $request->file('image')->storeAs('public/songs/' . $folderName, $folderName . '.jpg' );
+            $beat = $request->file('beat')->storeAs('public/songs/' . $folderName, $folderName . '.mp3' );
 
             //add to database
             $ks = new KaraokeSong();
@@ -97,15 +114,19 @@ class ManageKssController extends Controller
             $ks->year = $request->ks_year;
 
             if ($ks->save()){
-                $belongKsGenre = new BelongKsGenre();
-                $belongKsGenre->genre_id = $genre->id;
-                $belongKsGenre->kar_id = $ks->id;
-                $belongKsGenre->save();
+                foreach ($genres as $genre){
+                    $belongKsGenre = new BelongKsGenre();
+                    $belongKsGenre->genre_id = $genre->id;
+                    $belongKsGenre->kar_id = $ks->id;
+                    $belongKsGenre->save();
+                }
 
-                $performKsArtist = new PerformKsArtist();
-                $performKsArtist->kar_id = $ks->id;
-                $performKsArtist->art_id = $artist->id;
-                $performKsArtist->save();
+                foreach ($artists as $artist){
+                    $performKsArtist = new PerformKsArtist();
+                    $performKsArtist->kar_id = $ks->id;
+                    $performKsArtist->art_id = $artist->id;
+                    $performKsArtist->save();
+                }
 
                 return redirect()->route('admin.manage.kss');
             }
@@ -119,6 +140,57 @@ class ManageKssController extends Controller
         return view('ks-edit', ['ks' => $ks, 'genres' => $genres, 'artists' => $artists ]);
     }
     public function saveEditKs($id, Request $request) {
+        $cb_artists = $request->input('cb_artists');
+        $cb_genres = $request->input('cb_genres');
+        $name = $request->input('ks_name');
+        $year = $request->input('ks_year');
+        if ($name == ''
+            || $cb_artists == null || count($cb_artists) == 0
+            || $cb_genres == null || count($cb_genres) == 0){
+            return 0;
+        }
+        //delete genres
+        BelongKsGenre::where('kar_id', $id)->delete();
+        //delete artists
+        PerformKsArtist::where('kar_id', $id)->delete();
 
+        //add new genres and new artist
+        foreach ($cb_genres as $genre_id){
+            $belongKsGenre = new BelongKsGenre();
+            $belongKsGenre->genre_id = $genre_id;
+            $belongKsGenre->kar_id = $id;
+            $belongKsGenre->save();
+        }
+
+        foreach ($cb_artists as $artist_id){
+            $performKsArtist = new PerformKsArtist();
+            $performKsArtist->kar_id = $id;
+            $performKsArtist->art_id = $artist_id;
+            $performKsArtist->save();
+        }
+        //update year and name
+        $karaokeSong = KaraokeSong::where('id', $id)->first();
+        $karaokeSong->name = $name;
+        $karaokeSong->year = $year;
+        if($karaokeSong->save()){
+            return redirect()->route('admin.manage.kss');
+        }
+        return 0;
+    }
+    public function addGenre(Request $request) {
+        $newGenre = new Genre();
+        $newGenre->name = $request->input('genre_name');
+        if($newGenre->save()){
+            return redirect()->back();
+        }
+        return 0;
+    }
+    public function addArtist(Request $request) {
+        $newArtist = new Artist();
+        $newArtist->name = $request->input('artist_name');
+
+        if ($newArtist->save())
+            return redirect()->back();
+        return 0;
     }
 }

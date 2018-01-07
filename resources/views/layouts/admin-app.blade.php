@@ -16,8 +16,6 @@
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
     {{--<link href="{{ asset('css/datepicker3.css') }}" rel="stylesheet">--}}
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
-
-
     <script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
     <!--Custom Font-->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
@@ -32,7 +30,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span></button>
-            <a class="navbar-brand" href="#"><span>Karaoke</span>Admin</a>
+            <a class="navbar-brand" href="{{ route('admin.dashboard') }}"><span>Karaoke</span>Admin</a>
         </div>
     </div><!-- /.container-fluid -->
 </nav>
@@ -43,13 +41,13 @@
             <li><a href="{{ route('admin.login') }}">Login</a></li>
             <li><a href="{{ route('admin.register') }}">Register</a></li>
         @else
-            <li><a href="{{ route('admin.dashboard') }}"><em class="fa fa-dashboard"></em> Statistic</a></li>
+            <li><a href="{{ route('admin.dashboard') }}"><em class="fa fa-dashboard"></em> Home</a></li>
             <li><a href="{{ route('admin.manage.users') }}"><span class="fa fa-users"></span> Users</a></li>
             <li><a href="{{ route('admin.manage.srs') }}"><span class="fa fa-microphone"></span> Shared Records</a></li>
             <li><a href="{{ route('admin.manage.kss') }}"><span class="fa fa-play-circle"></span> Karaoke Songs</a></li>
-            <li><a href="{{ route('admin.manage.users') }}"><span class="fa fa-archive"></span> Report & Feedback</a></li>
+            <li><a href="{{ route('admin.manage.reports') }}"><span class="fa fa-archive"></span> Reports</a></li>
             <li><a href="{{ route('admin.profile') }}"><em class="fa fa-user"></em> Profile</a></li>
-            <li><a href="#"><em class="fa fa-bell-o"></em> Annoucement</a></li>
+            {{--<li><a href="#"><em class="fa fa-bell-o"></em> Annoucement</a></li>--}}
             <li>
                 <a href="{{ route('admin.logout') }}"
                    onclick="event.preventDefault();document.getElementById('logout-form').submit();"><em class="fa fa-power-off"></em> Logout</a>

@@ -145,7 +145,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal"
+                            id="btn_close_md_ksdetail">Close</button>
                     </div>
                 </div>
             </div>
@@ -196,6 +197,13 @@
                 }
                 $('#audio_player').css('display', 'block').attr('src', '/storage/songs/' + folderPath + '/' + data.beat).load();
 
+                //close button
+                $('#btn_close_md_ksdetail').off().on('click', function () {
+                    var player = document.getElementById('audio_player');
+                    if (!player.paused){
+                        player.pause();
+                    }
+                });
             });
         }
         function openMdDeleteKs( id ) {

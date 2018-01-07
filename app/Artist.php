@@ -12,4 +12,5 @@ class Artist extends Model
     protected $fillable = [
 
     ];
+    public $timestamps = false;
 }

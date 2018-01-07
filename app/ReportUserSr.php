@@ -12,9 +12,9 @@ class ReportUserSr extends Model
     public $timestamps = false;
 
     public function user() {
-        return $this->hasOne('App\User', 'user_id', 'id');
+        return $this->hasOne('App\User', 'id', 'user_id');
     }
     public function sharedrecord() {
-        return $this->hasOne( 'App\SharedRecording', 'sr_id', 'id');
+        return $this->hasOne( 'App\SharedRecording', 'id', 'sr_id');
     }
 }

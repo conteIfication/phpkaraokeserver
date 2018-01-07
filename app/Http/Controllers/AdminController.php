@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\KaraokeSong;
+use App\ReportUserKs;
+use App\ReportUserSr;
+use App\SharedRecording;
+use App\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -23,6 +28,11 @@ class AdminController extends Controller
      */
     public function index()
     {
-        return view('admin');
+        $srs = SharedRecording::count();
+        $kss = KaraokeSong::count();
+        $users = User::count();
+        $reportKs = ReportUserKs::count();
+        $reportSr = ReportUserSr::count();
+        return view('admin', ['srs' => $srs, 'kss' => $kss, 'users' => $users, 'reports' => $reportKs + $reportSr]);
     }
 }
