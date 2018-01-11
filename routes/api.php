@@ -42,6 +42,7 @@ Route::middleware('auth:api')->group(function (){
 
     Route::post('record/upload', 'Api\RecordController@uploadAudioRecord');
     Route::post('record/add', 'Api\RecordController@insertShareRecord');
+    Route::post('record/delete', 'Api\RecordController@deleteShareRecord');
     Route::get('record/popular/{num}', 'Api\RecordController@getPopular');
     Route::post('record/islike', 'Api\RecordController@isLike');
     Route::post('record/like', 'Api\RecordController@like');
@@ -64,6 +65,7 @@ Route::middleware('auth:api')->group(function (){
 
     Route::get('relation/{other_id}', 'Api\RelationController@getRelation')->where('other_id', '[0-9]+');;
     Route::post('relation/request', 'Api\RelationController@request');
+    Route::post('relation/accept', 'Api\RelationController@accept');
     Route::get('relation/all', 'Api\RelationController@all');
 
     Route::get('announcement/{num}/{sort}', 'Api\AnnouncementController@getAnn');

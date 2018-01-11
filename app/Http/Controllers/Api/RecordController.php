@@ -35,6 +35,14 @@ class RecordController extends Controller
         return $s->save() ? 1 : 0;
     }
 
+    public function deleteShareRecord(Request $request) {
+        $srid = $request->input('srid');
+        if (SharedRecording::where('id', $srid)->delete()){
+            return 1;
+        }
+        return 0;
+    }
+
     public function getPopular( $num ) {
         if ($num == 0) {
             $datas = SharedRecording::orderBy('view_no', 'desc')->get();
@@ -147,11 +155,10 @@ class RecordController extends Controller
     }
     public function upViewNo(Request $request) {
         $srId = $request->input('sr_id');
-        $uid = \Auth::user()->getAttribute('id');
 
-        $sr = SharedRecording::where('id', $srId)->first();
-
-        if (SharedRecording::where('id', $srId)->update([ 'view_no' => ($sr->view_no + 1) ])){
+        $sr = SharedRecording::find($srId);
+        $sr->view_no = $sr->view_no + 1;
+        if ($sr->save()){
             return 1;
         }
         return 0;

@@ -241,9 +241,10 @@ class KaraokeSongController extends Controller
         return 0;
     }
     public function getRecommend($num) {
+        $N = 3;
         $uid = \Auth::user()->getAttribute('id');
-        $recent_ks = RecordUserKs::where('user_id', $uid)->orderBy('updated_at', 'desc')->get();
-        if ( $recent_ks->count() < 5 ){
+        $recent_kss = RecordUserKs::where('user_id', $uid)->orderBy('updated_at', 'desc')->get();
+        if ( $recent_kss->count() < $N ){
             //content-based filter
             //get feature songs
             $feature_songs = KaraokeSong::orderBy('recent_view_no', 'desc')->take($num)->get();
@@ -321,63 +322,152 @@ class KaraokeSongController extends Controller
         }
         else {
             //hyrid recommend
-            $recent_songs = RecordUserKs::where('user_id', $uid)->orderBy('updated_at', 'desc')
-                ->take(2)->get();
-            $arr_recent_songs = array();
-            foreach ($recent_songs as $recent_song){
-                array_push($arr_recent_songs, $recent_song->kar_id);
+            $recent_ks_ids = array();
+            for ($i = 0; $i < $N; $i++){
+                array_push($recent_ks_ids, $recent_kss[$i]->kar_id);
             }
-            $arr_user_ids = array();
+            //tim tat ca nguoi dung cung hat chung
+            $user_ids = array();
             $users = User::where('id', '<>', $uid)->get();
             foreach ($users as $user) {
                 $count = RecordUserKs::where('user_id', $user->id)
-                    ->whereIn('kar_id', $arr_recent_songs)->count();
-                if ($count == count($arr_recent_songs)){
-                    array_push($arr_user_ids, $user->id);
+                    ->whereIn('kar_id', $recent_ks_ids)->count();
+                if ($count == count($recent_ks_ids)){
+                    array_push($user_ids, $user->id);
                 }
             }
-            $arr_kar_ids = array();
-            $arr_repeat = array();
-            foreach ( $arr_user_ids as $arr_user_id ){
-                $karSongs =  RecordUserKs::where('user_id', $arr_user_id)
-                    ->whereNotIn('kar_id', $arr_recent_songs)->get();
+            $kar_ids = array();
+            $kar_ids_repeat = array();
+            foreach ( $user_ids as $user_id ){
+                $karSongs =  RecordUserKs::where('user_id', $user_id)
+                    ->whereNotIn('kar_id', $recent_ks_ids)->get();
                 foreach ( $karSongs as $karSong ){
                     $exist = false;
-                    for($i = 0; $i < count($arr_kar_ids); $i++){
-                        if ($arr_kar_ids[$i] == $karSong->kar_id){
+                    for($i = 0; $i < count($kar_ids); $i++){
+                        if ($kar_ids[$i] == $karSong->kar_id){
                             $exist = true;
                             break;
                         }
                     }
                     if ($exist) {
-                        $arr_repeat[$i] = $arr_repeat[$i] + 1;
+                        $kar_ids_repeat[$i] = $kar_ids_repeat[$i] + 1;
                     }else {
-                        array_push( $arr_kar_ids, $karSong->kar_id );
-                        array_push( $arr_repeat, 1 );
+                        array_push( $kar_ids, $karSong->kar_id );
+                        array_push( $kar_ids_repeat, 1 );
                     }
                 }
             }
             $result = array();
-            $N = 7;
+            if (count($kar_ids_repeat) < $num){
+                $num = count($kar_ids_repeat);
+            }
 
-            if (count($arr_repeat) != 0) {
-                for ($j = 0; $j < $N; $j++){
-                    $max = 0;
-                    $idxMax = 0;
+            for ($j = 0; $j < $num; $j++){
+                $max = -1;
+                $idxMax = -1;
 
-                    for ($j = 0; $j < count($arr_repeat); $j++){
-                        if ($max < $arr_repeat[$j]){
-                            $max = $arr_repeat[$j];
-                            $idxMax = $j;
-                        }
+                for ($k = 0; $k < count($kar_ids_repeat); $k++){
+                    if ($max < $kar_ids_repeat[$k]){
+                        $max = $kar_ids_repeat[$k];
+                        $idxMax = $k;
                     }
-                    array_push($result, KaraokeSong::find($arr_kar_ids[$idxMax]));
-                    $arr_repeat[$idxMax] = 0;
+                }
+                if ($idxMax >= 0){
+                    array_push($result, KaraokeSong::find($kar_ids[$idxMax]));
+                    $kar_ids_repeat[$idxMax] = -10;
                 }
             }
+            if (count($result) < 3)
+                return $result;
+            //3 bai content-based
+            //get feature songs
+            $feature_songs = KaraokeSong::whereIn('id',
+                [$result[0]->id, $result[1]->id, $result[2]->id])->get();
+            $arr_feature_songs = array();
+            foreach ($feature_songs as $feature_song){
+                array_push($arr_feature_songs, $feature_song->id);
+            }
+            $diff_feature_songs = KaraokeSong::whereNotIn('id', $arr_feature_songs)->get();
+            //compare featureSongs with diffSongs to ranking
+            $songs = array();
+            foreach ($feature_songs as $feature_song ){
+                $maxScore = -10;
+                $song = null;
+                foreach ($diff_feature_songs as $diff_feature_song) {
+                    $score = 0;
+                    //genre diff
+                    $genre_score = 0;
+                    foreach ( $diff_feature_song->genres as $d_f_genre ) {
+                        foreach ($feature_song->genres as $f_genre){
+                            if ($d_f_genre->name == $f_genre->name){
+                                $genre_score++;
+                            }
+                        }
+                    }
+                    $genre_score = $genre_score * 2.0 / (count($diff_feature_song->genres)
+                            + count($feature_song->genres));
+                    $artist_score = 0;
+                    foreach ( $diff_feature_song->artists as $d_f_artist ) {
+                        foreach ($feature_song->artists as $f_artist){
+                            if ($d_f_artist->name == $f_artist->name){
+                                $artist_score++;
+                            }
+                        }
+                    }
+                    $artist_score = $artist_score * 2.0 / (count($diff_feature_song->genres)
+                            + count($feature_song->genres));
+
+                    //year
+                    $year_score = abs($feature_song->year - $diff_feature_song->year);
+                    if ($year_score > 10) {
+                        $year_score = 0;
+                    }else {
+                        $year_score = 1 - $year_score/10.0;
+                    }
+
+                    //c_score  //counter score
+                    $c_score = 0;
+                    $item = RecordUserKs::where('kar_id', $diff_feature_song->id)->first();
+                    if ($item != null){
+                        $c_score = $item->count/10;
+                    }
+
+                    $score = $genre_score + $artist_score + $c_score;
+
+                    if ($score > $maxScore){
+                        $noExist = true;
+                        foreach ( $songs as $s ) {
+                            if ($s->id == $diff_feature_song->id){
+                                $noExist = false;
+                                break;
+                            }
+                        }
+                        if ($noExist) {
+                            $maxScore = $score;
+                            $song = $diff_feature_song;
+                        }
+                    }
+                }
+                if ($song != null){
+                    array_push($songs, $song);
+                }
+            }
+            $songs;
+            foreach ($songs as $song){
+                $exist = false;
+                foreach ($result as $item){
+                    if ($item->id == $song->id){
+                        $exist = true;
+                        break;
+                    }
+                }
+                if (!$exist){
+                    array_push($result, $song);
+                }
+            }
+
             return $result;
         }
-        return null;
     }
 
     public function sendNotLike(Request $request) {

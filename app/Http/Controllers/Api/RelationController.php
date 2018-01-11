@@ -17,6 +17,7 @@ class RelationController extends Controller
      * 1: friend
      * 2: request
      * 3: nofriend
+     * 4: accept
      * */
 
 
@@ -34,11 +35,14 @@ class RelationController extends Controller
             [ 'other_id', $uid ]
         ])->first();
         if ($relation != null){
-            if ($relation->status == 'request')
-                return 2;
             if ($relation->status == 'friend')
                 return 1;
-
+            if ($relation->status == 'request'){
+                if ($relation->user_id == $uid)
+                    return 2;
+                else
+                    return 4;
+            }
         }
         return 3;
     }
@@ -70,9 +74,23 @@ class RelationController extends Controller
                     $toAnnUser = new ToAnnUser();
                     $toAnnUser->ann_id = $ann->id;
                     $toAnnUser->user_id = $otherId;
-                    $toAnnUser-save();
+                    $toAnnUser->save();
                 }
+                return 1;
+            }
+        }
+        return 0;
+    }
 
+    public function accept(Request $request){
+        $uid = \Auth::user()->getAttribute('id');
+        $oid = $request->input('other_id');
+
+        $relation = Relation::where('user_id', $uid)->where('other_id', $oid)->first();
+
+        if ($relation != null){
+            $relation->status = 'friend';
+            if ($relation->save()){
                 return 1;
             }
         }

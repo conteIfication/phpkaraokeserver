@@ -173,7 +173,7 @@ class ManageKssController extends Controller
         $karaokeSong->name = $name;
         $karaokeSong->year = $year;
         if($karaokeSong->save()){
-            return redirect()->route('admin.manage.kss');
+            return redirect()->back();
         }
         return 0;
     }

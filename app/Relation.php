@@ -11,6 +11,10 @@ class Relation extends Model
 
     public $timestamps = false;
 
+    protected $fillable =  [
+        'status'
+    ];
+
     public function user() {
         return $this->hasOne( 'App\User', 'id', 'user_id' );
     }
